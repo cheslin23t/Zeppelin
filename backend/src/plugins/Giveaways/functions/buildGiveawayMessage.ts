@@ -59,7 +59,9 @@ export function buildGiveawayEmbed(
     requirementLines.push(`Requires: ${giveaway.required_role_ids.map((id) => `<@&${id}>`).join(", ")}`);
   }
   if (giveaway.message_requirement) {
-    requirementLines.push(`Requires: ${formatRangeLabel(giveaway.message_requirement)} messages (${giveaway.message_requirement.period})`);
+    requirementLines.push(
+      `Requires: ${formatRangeLabel(giveaway.message_requirement)} messages (${giveaway.message_requirement.period})`,
+    );
   }
   if (giveaway.counter_requirement) {
     // Friendly fixed label rather than the raw counter name (e.g. "activity") — the concept staff configure
@@ -81,7 +83,11 @@ export function buildGiveawayEmbed(
   const extraEntryEntries = Object.entries(giveaway.extra_entries);
   if (extraEntryEntries.length > 0) {
     // Blank line first so the bonus list doesn't run straight on from the end date/requirements above it
-    requirementLines.push("", "**Bonus entries:**", ...extraEntryEntries.map(([roleId, bonus]) => `<@&${roleId}> +${bonus}`));
+    requirementLines.push(
+      "",
+      "**Bonus entries:**",
+      ...extraEntryEntries.map(([roleId, bonus]) => `<@&${roleId}> +${bonus}`),
+    );
   }
 
   const endsAtUnix = moment.utc(giveaway.ends_at).unix();
@@ -104,7 +110,11 @@ export function buildGiveawayEmbed(
   return embed;
 }
 
-export function buildGiveawayButtons(giveawayId: number, entryCount: number, disabled = false): ActionRowBuilder<ButtonBuilder> {
+export function buildGiveawayButtons(
+  giveawayId: number,
+  entryCount: number,
+  disabled = false,
+): ActionRowBuilder<ButtonBuilder> {
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setStyle(ButtonStyle.Primary)
@@ -144,7 +154,11 @@ export function buildWinnerAnnouncementButtons(giveawayId: number): ActionRowBui
 // before closing things out. Both carry the winner ID since each winner's thread is tracked separately in
 // winner_thread_ids. includeConfirmClaim is only false once the claim's already been confirmed (see
 // giveawayButtonInteraction.ts's "giveawayThreadConfirmClaim" handler re-rendering without it).
-export function buildGiveawayThreadActionRows(giveawayId: number, winnerId: string, includeConfirmClaim: boolean): ActionRowBuilder<ButtonBuilder>[] {
+export function buildGiveawayThreadActionRows(
+  giveawayId: number,
+  winnerId: string,
+  includeConfirmClaim: boolean,
+): ActionRowBuilder<ButtonBuilder>[] {
   const row = new ActionRowBuilder<ButtonBuilder>();
   if (includeConfirmClaim) {
     row.addComponents(

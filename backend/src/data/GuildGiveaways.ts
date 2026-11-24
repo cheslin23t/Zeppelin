@@ -52,7 +52,12 @@ export class GuildGiveaways extends BaseGuildRepository {
   // route). `search`, when given, matches a giveaway whose prize contains it OR whose host_id is in `hostIds` —
   // the caller resolves that list itself (an exact-snowflake candidate plus/or Discord member-search matches for
   // a typed username), since matching a *username* isn't something a plain SQL query can do on its own here.
-  async searchFinished(opts: { search: string | null; hostIds: string[]; page: number; pageSize: number }): Promise<{ items: Giveaway[]; total: number }> {
+  async searchFinished(opts: {
+    search: string | null;
+    hostIds: string[];
+    page: number;
+    pageSize: number;
+  }): Promise<{ items: Giveaway[]; total: number }> {
     const qb = this.giveaways
       .createQueryBuilder("g")
       .where("g.guild_id = :guildId", { guildId: this.guildId })

@@ -9,7 +9,9 @@ const giveawayEntries = new GiveawayEntries();
 // entrants — anyone past this cutoff is summarized in a trailing "...and N more" line instead of listed.
 const MAX_LISTED_PARTICIPANTS = 40;
 
-export async function buildParticipantsEmbed(giveaway: Pick<Giveaway, "id" | "prize" | "embed_color">): Promise<EmbedBuilder> {
+export async function buildParticipantsEmbed(
+  giveaway: Pick<Giveaway, "id" | "prize" | "embed_color">,
+): Promise<EmbedBuilder> {
   const entries = await giveawayEntries.getForGiveaway(giveaway.id);
   entries.sort((a, b) => b.entries - a.entries);
 
@@ -17,7 +19,10 @@ export async function buildParticipantsEmbed(giveaway: Pick<Giveaway, "id" | "pr
 
   const lines = entries
     .slice(0, MAX_LISTED_PARTICIPANTS)
-    .map((entry, index) => `**${index + 1}.** <@${entry.user_id}> — ${entry.entries} ${entry.entries === 1 ? "entry" : "entries"}`);
+    .map(
+      (entry, index) =>
+        `**${index + 1}.** <@${entry.user_id}> — ${entry.entries} ${entry.entries === 1 ? "entry" : "entries"}`,
+    );
 
   if (entries.length > MAX_LISTED_PARTICIPANTS) {
     lines.push(`...and ${entries.length - MAX_LISTED_PARTICIPANTS} more`);

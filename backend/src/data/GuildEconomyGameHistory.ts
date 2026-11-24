@@ -104,7 +104,11 @@ export class GuildEconomyGameHistory extends BaseGuildRepository {
     return new Map(rows.map((r) => [r.game_name, Number(r.elapsed)]));
   }
 
-  async getEntries(filter: EconomyGameHistoryFilter, limit: number, offset: number): Promise<EconomyGameHistoryEntry[]> {
+  async getEntries(
+    filter: EconomyGameHistoryFilter,
+    limit: number,
+    offset: number,
+  ): Promise<EconomyGameHistoryEntry[]> {
     return this.buildFilteredQuery(filter)
       .orderBy("h.created_at", "DESC")
       .addOrderBy("h.id", "DESC")

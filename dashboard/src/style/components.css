@@ -4,7 +4,6 @@
    specificity or source order, so without this every one of these classes was silently un-overridable by any
    Tailwind utility, even ones written later on the same element. */
 @layer components {
-
   .link {
     @apply text-primary;
     @apply underline;
@@ -77,12 +76,16 @@
     @apply bg-primary text-primary-foreground;
     /* Plain CSS for the same reason as the transition-property above — a multi-value shadow needs commas the
        formatter will keep re-spacing if this is written as an @apply shadow-[...] arbitrary value. */
-    box-shadow: 0 1px 2px color-mix(in oklch, var(--primary) 50%, transparent), 0 0 0 1px color-mix(in oklch, var(--primary) 35%, transparent);
+    box-shadow:
+      0 1px 2px color-mix(in oklch, var(--primary) 50%, transparent),
+      0 0 0 1px color-mix(in oklch, var(--primary) 35%, transparent);
 
     &:hover {
       @apply bg-primary/90;
       @apply -translate-y-px;
-      box-shadow: 0 4px 10px color-mix(in oklch, var(--primary) 45%, transparent), 0 0 0 1px color-mix(in oklch, var(--primary) 45%, transparent);
+      box-shadow:
+        0 4px 10px color-mix(in oklch, var(--primary) 45%, transparent),
+        0 0 0 1px color-mix(in oklch, var(--primary) 45%, transparent);
     }
 
     &:active {
@@ -312,7 +315,6 @@
   .sidebar-link-active {
     @apply bg-sidebar-accent text-sidebar-accent-foreground;
   }
-
 }
 
 /* @layer components */

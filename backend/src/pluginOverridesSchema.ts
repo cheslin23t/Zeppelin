@@ -67,7 +67,9 @@ export const pluginOverrideCriteriaSchema = basePluginOverrideCriteriaSchema
         .describe("This override applies if ANY of these criteria sets match");
     },
     get not() {
-      return pluginOverrideCriteriaSchema.optional().describe("This override only applies if this criteria set does NOT match");
+      return pluginOverrideCriteriaSchema
+        .optional()
+        .describe("This override only applies if this criteria set does NOT match");
     },
   })
   .meta({

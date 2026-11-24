@@ -41,7 +41,9 @@ export const CollectCmd = guildPluginMessageCommand<EconomyPluginType>()({
         const lastSec = elapsed.get(`collect:${roleId}`);
         const remainingMs = lastSec == null ? 0 : convertDelayStringToMS(role.cooldown)! - lastSec * 1000;
         if (remainingMs > 0) {
-          waiting.push(`<@&${roleId}> ${emojiPrefix}${formatAmount(role.amount)} ready <t:${Math.ceil((Date.now() + remainingMs) / 1000)}:R>`);
+          waiting.push(
+            `<@&${roleId}> ${emojiPrefix}${formatAmount(role.amount)} ready <t:${Math.ceil((Date.now() + remainingMs) / 1000)}:R>`,
+          );
           continue;
         }
 

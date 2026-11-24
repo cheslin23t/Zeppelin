@@ -41,8 +41,9 @@ export const zScheduledMultiplier = z
     announce: zScheduleAnnounce.optional(),
   })
   .refine(
-    (val) => [val.day_of_week != null, val.random != null, val.enabled != null, val.duration != null].filter(Boolean)
-      .length === 1,
+    (val) =>
+      [val.day_of_week != null, val.random != null, val.enabled != null, val.duration != null].filter(Boolean)
+        .length === 1,
     {
       message: "Exactly one of `day_of_week`, `random`, `enabled`, or `duration` must be set",
     },

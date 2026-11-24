@@ -38,7 +38,10 @@ export async function getPendingInfo(
   return { amount, unlocksAt: untilSeconds * 1000 };
 }
 
-export async function getPendingAmount(pluginData: GuildPluginData<EconomyPluginType>, userId: string): Promise<number> {
+export async function getPendingAmount(
+  pluginData: GuildPluginData<EconomyPluginType>,
+  userId: string,
+): Promise<number> {
   return (await getPendingInfo(pluginData, userId)).amount;
 }
 

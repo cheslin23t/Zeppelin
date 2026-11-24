@@ -15,7 +15,18 @@ function currentMonthlyKey(): string {
   return moment.utc().format("YYYY-MM");
 }
 
-function readCounts(row: Pick<MessageTrackerChannelCount, "all_time_count" | "daily_count" | "daily_date" | "weekly_count" | "weekly_start" | "monthly_count" | "monthly_month">): MessageCounts {
+function readCounts(
+  row: Pick<
+    MessageTrackerChannelCount,
+    | "all_time_count"
+    | "daily_count"
+    | "daily_date"
+    | "weekly_count"
+    | "weekly_start"
+    | "monthly_count"
+    | "monthly_month"
+  >,
+): MessageCounts {
   return {
     daily: row.daily_date === currentDailyKey() ? row.daily_count : 0,
     weekly: row.weekly_start === currentWeeklyKey() ? row.weekly_count : 0,
@@ -77,7 +88,12 @@ export class GuildMessageTrackerChannelCounts extends BaseGuildRepository {
   // messages to a channel, so that channel's own leaderboard/top-channels stats stay consistent with the
   // user's overall count instead of only the organic recordMessage path ever touching this table. Same
   // stale-bucket-resets-to-the-new-amount semantics as recordMessage, just adding `amount` instead of 1.
-  async addCount(channelId: string, userId: string, period: "daily" | "weekly" | "monthly" | "allTime", amount: number): Promise<void> {
+  async addCount(
+    channelId: string,
+    userId: string,
+    period: "daily" | "weekly" | "monthly" | "allTime",
+    amount: number,
+  ): Promise<void> {
     const dailyKey = currentDailyKey();
     const weeklyKey = currentWeeklyKey();
     const monthlyKey = currentMonthlyKey();
@@ -110,7 +126,19 @@ export class GuildMessageTrackerChannelCounts extends BaseGuildRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE ${updateSql}
     `,
-      [this.guildId, channelId, userId, insertAllTime, insertDaily, dailyKey, insertWeekly, weeklyKey, insertMonthly, monthlyKey, ...updateParams],
+      [
+        this.guildId,
+        channelId,
+        userId,
+        insertAllTime,
+        insertDaily,
+        dailyKey,
+        insertWeekly,
+        weeklyKey,
+        insertMonthly,
+        monthlyKey,
+        ...updateParams,
+      ],
     );
   }
 
@@ -136,7 +164,10 @@ export class GuildMessageTrackerChannelCounts extends BaseGuildRepository {
     }
 
     const rows = await query.addOrderBy("mtcc.id", "ASC").limit(limit).offset(offset).getMany();
-    return rows.map((row) => ({ userId: row.user_id, count: readCounts(row)[period === "allTime" ? "allTime" : period] }));
+    return rows.map((row) => ({
+      userId: row.user_id,
+      count: readCounts(row)[period === "allTime" ? "allTime" : period],
+    }));
   }
 
   async getTopCount(channelId: string, period: "daily" | "weekly" | "monthly" | "allTime"): Promise<number> {

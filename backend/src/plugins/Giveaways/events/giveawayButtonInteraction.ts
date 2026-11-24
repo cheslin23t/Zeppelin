@@ -68,13 +68,17 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
 
     if (namespace === "giveawayLeave") {
       if (giveaway.status !== "running") {
-        await args.interaction.reply({ ephemeral: true, content: "This giveaway has already ended." }).catch(() => null);
+        await args.interaction
+          .reply({ ephemeral: true, content: "This giveaway has already ended." })
+          .catch(() => null);
         return;
       }
 
       const existingEntry = await giveawayEntries.getForUser(giveaway.id, member.id);
       if (!existingEntry) {
-        await args.interaction.reply({ ephemeral: true, content: "You're not entered in this giveaway." }).catch(() => null);
+        await args.interaction
+          .reply({ ephemeral: true, content: "You're not entered in this giveaway." })
+          .catch(() => null);
         return;
       }
 
@@ -96,9 +100,12 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
     if (namespace === "giveawayThread") {
       // winner_ids is append-only history (see entity comment) — expired_winner_ids excludes anyone whose
       // claim window ran out and was rerolled, so they don't still count as a current winner here.
-      const isCurrentWinner = giveaway.winner_ids.includes(member.id) && !giveaway.expired_winner_ids.includes(member.id);
+      const isCurrentWinner =
+        giveaway.winner_ids.includes(member.id) && !giveaway.expired_winner_ids.includes(member.id);
       if (!isCurrentWinner) {
-        await args.interaction.reply({ ephemeral: true, content: "Only a current winner of this giveaway can create their prize thread." }).catch(() => null);
+        await args.interaction
+          .reply({ ephemeral: true, content: "Only a current winner of this giveaway can create their prize thread." })
+          .catch(() => null);
         return;
       }
 
@@ -107,7 +114,12 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
       // below, including a manager deleting it without ever confirming the claim), this doesn't get a
       // replacement.
       if (giveaway.winner_thread_closed_ids.includes(member.id)) {
-        await args.interaction.reply({ ephemeral: true, content: "Your prize claim has already been confirmed — this giveaway's handoff is complete." }).catch(() => null);
+        await args.interaction
+          .reply({
+            ephemeral: true,
+            content: "Your prize claim has already been confirmed — this giveaway's handoff is complete.",
+          })
+          .catch(() => null);
         return;
       }
 
@@ -116,14 +128,18 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
       if (existingThreadId) {
         const existingThread = await pluginData.guild.channels.fetch(existingThreadId).catch(() => null);
         if (existingThread) {
-          await args.interaction.reply({ ephemeral: true, content: `You already have a thread: <#${existingThreadId}>` }).catch(() => null);
+          await args.interaction
+            .reply({ ephemeral: true, content: `You already have a thread: <#${existingThreadId}>` })
+            .catch(() => null);
           return;
         }
         // The recorded thread is gone for some other reason (manually deleted outside the bot, channel purge,
         // etc.) rather than a deliberate close (ruled out above) — drop the stale record instead of permanently
         // telling the winner they already have a thread that no longer exists, and fall through to create them
         // a new one below.
-        winnerThreadIds = Object.fromEntries(Object.entries(winnerThreadIds).filter(([winnerId]) => winnerId !== member.id));
+        winnerThreadIds = Object.fromEntries(
+          Object.entries(winnerThreadIds).filter(([winnerId]) => winnerId !== member.id),
+        );
         await pluginData.state.giveaways.update(giveaway.id, { winner_thread_ids: winnerThreadIds });
       }
 
@@ -134,8 +150,16 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
       try {
         ({ thread, sendError } = await createGiveawayThread(pluginData, giveaway, member.id));
       } catch (err) {
-        console.error(`[GIVEAWAYS] Failed to create winner thread for giveaway ${giveaway.id}, winner ${member.id}:`, err);
-        await args.interaction.editReply({ content: "Couldn't create the thread — the giveaway's channel may no longer exist or the bot may be missing permissions." }).catch(() => null);
+        console.error(
+          `[GIVEAWAYS] Failed to create winner thread for giveaway ${giveaway.id}, winner ${member.id}:`,
+          err,
+        );
+        await args.interaction
+          .editReply({
+            content:
+              "Couldn't create the thread — the giveaway's channel may no longer exist or the bot may be missing permissions.",
+          })
+          .catch(() => null);
         return;
       }
 
@@ -161,26 +185,43 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
 
       // Whoever's actually responsible for handing the prize over — not the general manager_roles list, which
       // is reserved for reviewing/deleting the thread afterward (see "giveawayThreadDelete" below).
-      const isHostOrHolder = member.id === giveaway.host_id || (giveaway.holder_id != null && member.id === giveaway.holder_id);
+      const isHostOrHolder =
+        member.id === giveaway.host_id || (giveaway.holder_id != null && member.id === giveaway.holder_id);
       if (!isHostOrHolder) {
-        await args.interaction.reply({ ephemeral: true, content: "Only the giveaway host or the person holding this prize can confirm the claim." }).catch(() => null);
+        await args.interaction
+          .reply({
+            ephemeral: true,
+            content: "Only the giveaway host or the person holding this prize can confirm the claim.",
+          })
+          .catch(() => null);
         return;
       }
 
       const confirmed = await confirmWinnerClaimed(giveaway.id, winnerId);
       if (!confirmed) {
-        await args.interaction.reply({ ephemeral: true, content: "This claim was already confirmed, or that user isn't a current winner here." }).catch(() => null);
+        await args.interaction
+          .reply({
+            ephemeral: true,
+            content: "This claim was already confirmed, or that user isn't a current winner here.",
+          })
+          .catch(() => null);
         return;
       }
 
-      await args.interaction.update({ components: buildGiveawayThreadActionRows(giveaway.id, winnerId, false) }).catch(() => null);
-      await args.interaction.followUp({ ephemeral: true, content: `✅ Marked <@${winnerId}> as claimed.` }).catch(() => null);
+      await args.interaction
+        .update({ components: buildGiveawayThreadActionRows(giveaway.id, winnerId, false) })
+        .catch(() => null);
+      await args.interaction
+        .followUp({ ephemeral: true, content: `✅ Marked <@${winnerId}> as claimed.` })
+        .catch(() => null);
       return;
     }
 
     if (namespace === "giveawayThreadDelete") {
       if (!hasGiveawayManagerRole(pluginData, member)) {
-        await args.interaction.reply({ ephemeral: true, content: "Only giveaway managers can delete this thread." }).catch(() => null);
+        await args.interaction
+          .reply({ ephemeral: true, content: "Only giveaway managers can delete this thread." })
+          .catch(() => null);
         return;
       }
 
@@ -223,7 +264,9 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
     }
 
     if (await isUserBannedFromGiveaways(pluginData.guild.id, member.id)) {
-      await args.interaction.reply({ ephemeral: true, content: "You're banned from entering giveaways in this server." }).catch(() => null);
+      await args.interaction
+        .reply({ ephemeral: true, content: "You're banned from entering giveaways in this server." })
+        .catch(() => null);
       return;
     }
 
@@ -244,7 +287,14 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
         ? await getSupporterLevels(member.id)
         : null;
 
-    const check = checkEntryRequirements(giveaway, memberRoleIds, messageCounts, counterValue, coinsValue, supporterLevels);
+    const check = checkEntryRequirements(
+      giveaway,
+      memberRoleIds,
+      messageCounts,
+      counterValue,
+      coinsValue,
+      supporterLevels,
+    );
     if (!check.allowed) {
       await args.interaction.reply({ ephemeral: true, content: check.reason }).catch(() => null);
       return;
@@ -253,13 +303,13 @@ export const onGiveawayButtonInteraction = guildPluginEventListener<GiveawaysPlu
     const weight = computeEntryWeight(giveaway.extra_entries, memberRoleIds);
     await giveawayEntries.add(giveaway.id, member.id, weight);
 
-    await args.interaction
-      .reply({ ephemeral: true, content: "You're in! Good luck! 🎉" })
-      .catch(() => null);
+    await args.interaction.reply({ ephemeral: true, content: "You're in! Good luck! 🎉" }).catch(() => null);
 
     // The ephemeral reply above already used up this interaction's one response, so the button label is
     // updated with a separate, ordinary message edit rather than interaction.update().
     const newCount = await giveawayEntries.count(giveaway.id);
-    await args.interaction.message.edit({ components: [buildGiveawayButtons(giveaway.id, newCount)] }).catch(() => null);
+    await args.interaction.message
+      .edit({ components: [buildGiveawayButtons(giveaway.id, newCount)] })
+      .catch(() => null);
   },
 });

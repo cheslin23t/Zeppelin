@@ -105,8 +105,7 @@ export async function runPvpVsBot(
   const totalAfter = await pluginData.state.counters.getCounterValue(config.counter_name, null, playerId);
   const resultTag = outcome.type === "win" ? "🏆 Won" : outcome.type === "push" ? "🤝 Push" : "💀 Lost";
 
-  const net =
-    outcome.type === "win" ? amount : outcome.type === "loss" ? -amount : (outcome.refund ?? amount) - amount;
+  const net = outcome.type === "win" ? amount : outcome.type === "loss" ? -amount : (outcome.refund ?? amount) - amount;
 
   await logGameHistory(pluginData, {
     userId: playerId,

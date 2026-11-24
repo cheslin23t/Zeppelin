@@ -34,10 +34,15 @@ export const ShopStatusCmd = guildPluginMessageCommand<EconomyPluginType>()({
       const remainingMs = boost.expiresAt.getTime() - Date.now();
       const boostConfig = config.shop.boosts[boost.boostKey];
       const label = boostConfig?.label ?? boost.boostKey;
-      lines.push(`**${label}**: ${boost.multiplier}x ${typeLabel} — ${humanizeDuration(Math.max(0, remainingMs), { round: true })} left`);
+      lines.push(
+        `**${label}**: ${boost.multiplier}x ${typeLabel} — ${humanizeDuration(Math.max(0, remainingMs), { round: true })} left`,
+      );
     }
 
-    const embed = new EmbedBuilder().setColor(getGuildEmbedColor(pluginData)).setTitle("Active Boosts").setDescription(lines.join("\n"));
+    const embed = new EmbedBuilder()
+      .setColor(getGuildEmbedColor(pluginData))
+      .setTitle("Active Boosts")
+      .setDescription(lines.join("\n"));
 
     await message.channel.send({ embeds: [embed] });
   },

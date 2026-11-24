@@ -224,7 +224,10 @@ export const GuildStore: Module<GuildState, RootState> = {
 
     async setGiveawayContributorRole({ commit }, { guildId, userId, member, grant }) {
       const result = await post(`guilds/${guildId}/giveaways/contributor/${userId}`, { grant });
-      commit("setGiveawayContributor", { guildId, status: { userId, member, configured: true, hasRole: result.hasRole } });
+      commit("setGiveawayContributor", {
+        guildId,
+        status: { userId, member, configured: true, hasRole: result.hasRole },
+      });
     },
 
     async loadGiveawayBanStatus({ commit }, { guildId, userId }) {

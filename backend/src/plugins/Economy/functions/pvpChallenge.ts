@@ -1,4 +1,13 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message, MessageComponentInteraction, OmitPartialGroupDMChannel, User } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+  Message,
+  MessageComponentInteraction,
+  OmitPartialGroupDMChannel,
+  User,
+} from "discord.js";
 import { GuildPluginData } from "vety";
 import { z } from "zod";
 import { MINUTES, noop } from "../../../utils.js";

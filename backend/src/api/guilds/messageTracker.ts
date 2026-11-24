@@ -32,7 +32,9 @@ async function getMessageTrackerPluginConfig(guildId: string): Promise<any> {
 
 async function getMessageTrackerManagerRoles(guildId: string): Promise<string[]> {
   const config = await getMessageTrackerPluginConfig(guildId);
-  return Array.isArray(config.manager_roles) ? config.manager_roles.filter((id: unknown) => typeof id === "string") : [];
+  return Array.isArray(config.manager_roles)
+    ? config.manager_roles.filter((id: unknown) => typeof id === "string")
+    : [];
 }
 
 // Same rationale as Giveaways'/Economy's isXManager: swallows errors and denies access rather than propagating,
@@ -76,36 +78,44 @@ export function initGuildMessageTrackerAPI(router: express.Router) {
 
   // Resolves a typed ID or username/nickname into candidate guild members — same shape as Economy's /lookup and
   // Giveaways' /lookup, powers this tab's user picker too.
-  messagesRouter.get("/:guildId/messages/lookup", requireMessageTrackerManager(), async (req: Request, res: Response) => {
-    try {
-      const query = typeof req.query.query === "string" ? req.query.query.trim() : "";
-      if (!query) return res.json([]);
+  messagesRouter.get(
+    "/:guildId/messages/lookup",
+    requireMessageTrackerManager(),
+    async (req: Request, res: Response) => {
+      try {
+        const query = typeof req.query.query === "string" ? req.query.query.trim() : "";
+        if (!query) return res.json([]);
 
-      if (isValidSnowflake(query)) {
-        const member = await getGuildMemberDisplayInfo(req.params.guildId, query);
-        return res.json(member ? [member] : []);
+        if (isValidSnowflake(query)) {
+          const member = await getGuildMemberDisplayInfo(req.params.guildId, query);
+          return res.json(member ? [member] : []);
+        }
+
+        const ids = await searchGuildMembersByUsername(req.params.guildId, query, MAX_LOOKUP_MATCHES);
+        const members = await Promise.all(ids.map((id) => getGuildMemberDisplayInfo(req.params.guildId, id)));
+        res.json(members.filter((m) => m != null));
+      } catch (err) {
+        serverError(res, "Failed to look up members");
       }
-
-      const ids = await searchGuildMembersByUsername(req.params.guildId, query, MAX_LOOKUP_MATCHES);
-      const members = await Promise.all(ids.map((id) => getGuildMemberDisplayInfo(req.params.guildId, id)));
-      res.json(members.filter((m) => m != null));
-    } catch (err) {
-      serverError(res, "Failed to look up members");
-    }
-  });
+    },
+  );
 
   // Just the three top stat cards (messages today/total messages/tracked users) — a plain DB read with no
   // Discord REST calls, unlike /messages/top-senders and /messages/top-channels (which resolve names/avatars).
   // Split into its own route so the dashboard can poll this one every second for a live-updating counter without
   // hammering Discord's API or re-resolving the top lists on every tick.
-  messagesRouter.get("/:guildId/messages/summary", requireMessageTrackerManager(), async (req: Request, res: Response) => {
-    try {
-      const summary = await GuildMessageTrackerCounts.getGuildInstance(req.params.guildId).getSummary();
-      res.json(summary);
-    } catch (err) {
-      serverError(res, "Failed to load message summary");
-    }
-  });
+  messagesRouter.get(
+    "/:guildId/messages/summary",
+    requireMessageTrackerManager(),
+    async (req: Request, res: Response) => {
+      try {
+        const summary = await GuildMessageTrackerCounts.getGuildInstance(req.params.guildId).getSummary();
+        res.json(summary);
+      } catch (err) {
+        serverError(res, "Failed to load message summary");
+      }
+    },
+  );
 
   messagesRouter.get(
     "/:guildId/messages/user/:userId",
@@ -180,7 +190,12 @@ export function initGuildMessageTrackerAPI(router: express.Router) {
           }
 
           if (action === "give" && rawChannelId) {
-            await GuildMessageTrackerChannelCounts.getGuildInstance(guildId).addCount(rawChannelId, userId, period, amount);
+            await GuildMessageTrackerChannelCounts.getGuildInstance(guildId).addCount(
+              rawChannelId,
+              userId,
+              period,
+              amount,
+            );
           }
         }
 
@@ -239,43 +254,61 @@ export function initGuildMessageTrackerAPI(router: express.Router) {
 
   // Top senders guild-wide, for whichever rolling period the dashboard's selector is on — independent of
   // /messages/top-channels' own period (see GuildMessagesPanel.vue, each list has its own selector).
-  messagesRouter.get("/:guildId/messages/top-senders", requireMessageTrackerManager(), async (req: Request, res: Response) => {
-    try {
-      const { guildId } = req.params;
-      const period = parsePeriodQuery(req, res);
-      if (!period) return;
+  messagesRouter.get(
+    "/:guildId/messages/top-senders",
+    requireMessageTrackerManager(),
+    async (req: Request, res: Response) => {
+      try {
+        const { guildId } = req.params;
+        const period = parsePeriodQuery(req, res);
+        if (!period) return;
 
-      const topSendersRaw = await GuildMessageTrackerCounts.getGuildInstance(guildId).getTop(period, TOP_LIST_LIMIT, 0);
-      const topSenders = await resolveTopList(guildId, topSendersRaw);
+        const topSendersRaw = await GuildMessageTrackerCounts.getGuildInstance(guildId).getTop(
+          period,
+          TOP_LIST_LIMIT,
+          0,
+        );
+        const topSenders = await resolveTopList(guildId, topSendersRaw);
 
-      res.json({ period, topSenders });
-    } catch (err) {
-      serverError(res, "Failed to load top senders");
-    }
-  });
+        res.json({ period, topSenders });
+      } catch (err) {
+        serverError(res, "Failed to load top senders");
+      }
+    },
+  );
 
   // Top channels guild-wide, for whichever rolling period the dashboard's selector is on — independent of
   // /messages/top-senders' own period.
-  messagesRouter.get("/:guildId/messages/top-channels", requireMessageTrackerManager(), async (req: Request, res: Response) => {
-    try {
-      const { guildId } = req.params;
-      const period = parsePeriodQuery(req, res);
-      if (!period) return;
+  messagesRouter.get(
+    "/:guildId/messages/top-channels",
+    requireMessageTrackerManager(),
+    async (req: Request, res: Response) => {
+      try {
+        const { guildId } = req.params;
+        const period = parsePeriodQuery(req, res);
+        if (!period) return;
 
-      const topChannelsRaw = await GuildMessageTrackerChannelCounts.getGuildInstance(guildId).getTopChannels(period, TOP_CHANNELS_LIMIT);
-      const channelNames = await resolveChannelNames(guildId, topChannelsRaw.map((c) => c.channelId));
+        const topChannelsRaw = await GuildMessageTrackerChannelCounts.getGuildInstance(guildId).getTopChannels(
+          period,
+          TOP_CHANNELS_LIMIT,
+        );
+        const channelNames = await resolveChannelNames(
+          guildId,
+          topChannelsRaw.map((c) => c.channelId),
+        );
 
-      const topChannels = topChannelsRaw.map((c) => ({
-        ...c,
-        name: channelNames[c.channelId]?.name ?? null,
-        type: channelNames[c.channelId]?.type ?? null,
-      }));
+        const topChannels = topChannelsRaw.map((c) => ({
+          ...c,
+          name: channelNames[c.channelId]?.name ?? null,
+          type: channelNames[c.channelId]?.type ?? null,
+        }));
 
-      res.json({ period, topChannels });
-    } catch (err) {
-      serverError(res, "Failed to load top channels");
-    }
-  });
+        res.json({ period, topChannels });
+      } catch (err) {
+        serverError(res, "Failed to load top channels");
+      }
+    },
+  );
 
   router.use("/", messagesRouter);
 }

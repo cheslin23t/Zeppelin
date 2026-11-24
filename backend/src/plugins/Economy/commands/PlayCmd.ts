@@ -89,7 +89,10 @@ export const PlayCmd = guildPluginMessageCommand<EconomyPluginType>()({
           return;
         }
         if (await isPvpDisabled(pluginData, args.user.id)) {
-          void pluginData.state.common.sendErrorMessage(message, `${args.user.username} isn't accepting PvP challenges.`);
+          void pluginData.state.common.sendErrorMessage(
+            message,
+            `${args.user.username} isn't accepting PvP challenges.`,
+          );
           return;
         }
         await runBlackjackTable(pluginData, message, gameName, game, "vs", args.amount, [args.user]);
@@ -119,7 +122,11 @@ export const PlayCmd = guildPluginMessageCommand<EconomyPluginType>()({
         return;
       }
 
-      const { spendable: currentBalance } = await getSpendableBalance(pluginData, config.counter_name, message.author.id);
+      const { spendable: currentBalance } = await getSpendableBalance(
+        pluginData,
+        config.counter_name,
+        message.author.id,
+      );
 
       let bet = parseAmountInput(args.amount, currentBalance);
       if (bet === null) {

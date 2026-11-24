@@ -34,10 +34,7 @@ export const humanizeDuration = humanizeduration.humanizer({
 });
 
 export type DiscordTimestampStyle = "t" | "T" | "d" | "D" | "f" | "F" | "R";
-export function discordTimestamp(
-  when: Date | number,
-  style: DiscordTimestampStyle = "f"
-): string {
+export function discordTimestamp(when: Date | number, style: DiscordTimestampStyle = "f"): string {
   let seconds: number;
 
   if (when instanceof Date) {

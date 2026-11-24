@@ -3,11 +3,11 @@ import { buildEconomyInfoEmbed } from "../functions/buildEconomyInfoEmbed.js";
 import { EconomyPluginType } from "../types.js";
 
 export const EconomyHelpCmd = guildPluginMessageCommand<EconomyPluginType>()({
-    trigger: ["economy help", "economyhelp", "economyinfo"],
-    permission: "can_view",
+  trigger: ["economy help", "economyhelp", "economyinfo"],
+  permission: "can_view",
 
-    async run({ pluginData, message }) {
-        const embed = await buildEconomyInfoEmbed(pluginData, message);
-        await message.channel.send({ embeds: [embed] });
-    },
+  async run({ pluginData, message }) {
+    const embed = await buildEconomyInfoEmbed(pluginData, message);
+    await message.channel.send({ embeds: [embed] });
+  },
 });

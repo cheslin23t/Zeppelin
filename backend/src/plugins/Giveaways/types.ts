@@ -14,7 +14,11 @@ const zGiveawayTemplate = z.strictObject({
   embed_color: z.number().int().min(0).max(0xffffff).optional(),
   bypass_roles: z.array(zSnowflake).max(MAX_ROLES_PER_LIST).default([]),
   blacklisted_roles: z.array(zSnowflake).max(MAX_ROLES_PER_LIST).default([]),
-  extra_entries: zBoundedRecord(z.record(zSnowflake, z.number().int().min(1).max(100)), 0, MAX_EXTRA_ENTRY_ROLES).default({}),
+  extra_entries: zBoundedRecord(
+    z.record(zSnowflake, z.number().int().min(1).max(100)),
+    0,
+    MAX_EXTRA_ENTRY_ROLES,
+  ).default({}),
   // How long a winner has to click "Claim Prize" before they're automatically rerolled. Unset means no claim
   // requirement at all — the giveaway behaves exactly as before this was added.
   claim_time: zDelayString.optional(),

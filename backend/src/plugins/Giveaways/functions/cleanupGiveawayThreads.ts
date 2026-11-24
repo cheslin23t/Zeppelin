@@ -11,7 +11,9 @@ import { deleteChannel } from "./discordRest.js";
  */
 export async function deleteWinnerThreads(giveaway: Giveaway, winnerIds: string[]): Promise<Record<string, string>> {
   const nextThreadIds = { ...giveaway.winner_thread_ids };
-  const threadIds = winnerIds.map((winnerId) => nextThreadIds[winnerId]).filter((threadId): threadId is string => threadId != null);
+  const threadIds = winnerIds
+    .map((winnerId) => nextThreadIds[winnerId])
+    .filter((threadId): threadId is string => threadId != null);
   for (const winnerId of winnerIds) delete nextThreadIds[winnerId];
 
   await Promise.all(threadIds.map((threadId) => deleteChannel(threadId).catch(() => null)));

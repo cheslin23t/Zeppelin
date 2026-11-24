@@ -60,9 +60,7 @@ export const BalanceCmd = guildPluginMessageCommand<EconomyPluginType>()({
 
     collector.on("collect", async (interaction: MessageComponentInteraction) => {
       if (interaction.user.id !== message.author.id) {
-        await interaction
-          .reply({ content: "You are not permitted to use this button.", ephemeral: true })
-          .catch(noop);
+        await interaction.reply({ content: "You are not permitted to use this button.", ephemeral: true }).catch(noop);
         return;
       }
 

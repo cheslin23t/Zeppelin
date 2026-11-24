@@ -44,7 +44,12 @@ function cachedDiscordBotRequest(cacheKey: string, path: string): Promise<any> {
 // Giveaways' contributor role, see api/guilds/giveaways.ts). Discord itself enforces the usual constraints (the
 // bot needs Manage Roles and its own top role above the target role) — a failure here just surfaces as a normal
 // thrown error for the caller to report, same as any other Discord API error in this file.
-export async function setGuildMemberRole(guildId: string, userId: string, roleId: string, grant: boolean): Promise<void> {
+export async function setGuildMemberRole(
+  guildId: string,
+  userId: string,
+  roleId: string,
+  grant: boolean,
+): Promise<void> {
   const res = await fetch(`${DISCORD_API_URL}/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
     method: grant ? "PUT" : "DELETE",
     headers: { Authorization: `Bot ${env.BOT_TOKEN}` },
@@ -80,7 +85,10 @@ export interface GuildMemberDisplayInfo {
 // api/guilds/giveaways.ts's /members route) just calls this once per ID — each call is still cached/de-duped
 // the same as the single-member lookup above. Returns null if the user isn't currently a guild member (e.g.
 // they left after winning) rather than throwing, so one missing member doesn't break the whole batch.
-export async function getGuildMemberDisplayInfo(guildId: string, userId: string): Promise<GuildMemberDisplayInfo | null> {
+export async function getGuildMemberDisplayInfo(
+  guildId: string,
+  userId: string,
+): Promise<GuildMemberDisplayInfo | null> {
   try {
     const member = await cachedDiscordBotRequest(`member:${guildId}:${userId}`, `guilds/${guildId}/members/${userId}`);
     const user = member.user ?? {};
@@ -88,7 +96,9 @@ export async function getGuildMemberDisplayInfo(guildId: string, userId: string)
       id: userId,
       username: user.username ?? userId,
       displayName: member.nick ?? user.global_name ?? user.username ?? userId,
-      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=32` : null,
+      avatar: user.avatar
+        ? `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=32`
+        : null,
     };
   } catch {
     // Not a current guild member (they left, or were never one) — Discord's per-guild member endpoint 404s for
@@ -106,7 +116,9 @@ async function getGlobalUserDisplayInfo(userId: string): Promise<GuildMemberDisp
       id: userId,
       username: user.username ?? userId,
       displayName: user.global_name ?? user.username ?? userId,
-      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=32` : null,
+      avatar: user.avatar
+        ? `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=32`
+        : null,
     };
   } catch {
     return null;
@@ -178,7 +190,10 @@ async function getDiscordChannel(channelId: string): Promise<{ name: string; typ
 // first, falling back to a direct per-channel fetch only for ids that come up empty there. Used by the Messages
 // dashboard's "top channels" widget and single-channel stats route (api/guilds/messageTracker.ts), where the id
 // list is always small (≤10) so the fallback's extra calls stay cheap.
-export async function resolveChannelNames(guildId: string, channelIds: string[]): Promise<Record<string, { name: string; type: number }>> {
+export async function resolveChannelNames(
+  guildId: string,
+  channelIds: string[],
+): Promise<Record<string, { name: string; type: number }>> {
   const map = await getGuildChannelNameMap(guildId);
   const result: Record<string, { name: string; type: number }> = {};
   const unresolved: string[] = [];
@@ -201,8 +216,7 @@ export async function resolveChannelNames(guildId: string, channelIds: string[])
 // the guild's full configuration. Other dashboard users retain the normal ReadConfig requirement.
 async function hasDiscordDataAccess(userId: string, guildId: string): Promise<boolean> {
   return (
-    (await hasGuildPermission(userId, guildId, ApiPermissions.ReadConfig)) ||
-    (await isGiveawayManager(guildId, userId))
+    (await hasGuildPermission(userId, guildId, ApiPermissions.ReadConfig)) || (await isGiveawayManager(guildId, userId))
   );
 }
 

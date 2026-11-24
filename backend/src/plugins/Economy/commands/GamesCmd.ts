@@ -40,16 +40,17 @@ export const GamesCmd = guildPluginMessageCommand<EconomyPluginType>()({
       const aliasesText = game.aliases.length ? ` (aka ${game.aliases.map((a) => `\`${a}\``).join(", ")})` : "";
 
       if (game.type === "reward") {
-        const winText =
-          game.win_chance >= 1 ? "Guaranteed" : `${Math.round(game.win_chance * 100)}% chance for`;
+        const winText = game.win_chance >= 1 ? "Guaranteed" : `${Math.round(game.win_chance * 100)}% chance for`;
         return `${emojiPrefix}**${label}** (\`${prefix}work\`) — ${winText} **${formatRewardAmount(game.reward)}** ${config.currency_name}${cooldownText}`;
       }
 
       if (game.type === "blackjack") {
-        return `${emojiPrefix}**${label}**${aliasesText} (\`${prefix}${gameName} <amount>\`): standard blackjack, pays **${game.blackjack_payout}x** on a natural, bet ${formatAmount(game.min_bet)}-${formatAmount(game.max_bet)} ${config.currency_name}${cooldownText}\n` +
+        return (
+          `${emojiPrefix}**${label}**${aliasesText} (\`${prefix}${gameName} <amount>\`): standard blackjack, pays **${game.blackjack_payout}x** on a natural, bet ${formatAmount(game.min_bet)}-${formatAmount(game.max_bet)} ${config.currency_name}${cooldownText}\n` +
           `- \`${prefix}${gameName} table <amount>\`: up to 10 players vs the dealer, each with their own bet\n` +
           `- \`${prefix}${gameName} vs <amount>\`: 2-10 players vs each other, everyone bets at least half the host's bet and the best hand takes the pot\n` +
-          `- \`${prefix}${gameName} @user <amount>\`: challenge someone directly`;
+          `- \`${prefix}${gameName} @user <amount>\`: challenge someone directly`
+        );
       }
 
       if (game.type === "pvp") {
@@ -65,10 +66,7 @@ export const GamesCmd = guildPluginMessageCommand<EconomyPluginType>()({
       return `${emojiPrefix}**${label}**${aliasesText} (\`${prefix}${gameName} <amount>\`) — ${winPercent}% to win **${formatWinMultiplier(game.win_multiplier)}**, bet ${formatAmount(game.min_bet)}-${formatAmount(game.max_bet)} ${config.currency_name}${cooldownText}`;
     });
 
-    const embed = new EmbedBuilder()
-      .setColor(0x0159b2)
-      .setTitle("Games")
-      .setDescription(lines.join("\n"));
+    const embed = new EmbedBuilder().setColor(0x0159b2).setTitle("Games").setDescription(lines.join("\n"));
 
     await message.channel.send({ embeds: [embed] });
   },

@@ -24,7 +24,10 @@ export const GiveawayContributorCmd = guildPluginMessageCommand<GiveawaysPluginT
 
     const action = args.action.toLowerCase();
     if (action !== "grant" && action !== "revoke") {
-      void pluginData.state.common.sendErrorMessage(message, "Specify `grant` or `revoke`, e.g. `-giveaway contributor @user grant`");
+      void pluginData.state.common.sendErrorMessage(
+        message,
+        "Specify `grant` or `revoke`, e.g. `-giveaway contributor @user grant`",
+      );
       return;
     }
 

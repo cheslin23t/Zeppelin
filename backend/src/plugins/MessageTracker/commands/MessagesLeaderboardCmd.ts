@@ -76,7 +76,8 @@ export const MessagesLeaderboardCmd = guildPluginMessageCommand<MessageTrackerPl
     const channelId = args.channel?.id ?? null;
     const source = channelId
       ? {
-          getTop: (limit: number, offset: number) => pluginData.state.channelCounts.getTop(channelId, period, limit, offset),
+          getTop: (limit: number, offset: number) =>
+            pluginData.state.channelCounts.getTop(channelId, period, limit, offset),
           getTopCount: () => pluginData.state.channelCounts.getTopCount(channelId, period),
         }
       : {
@@ -108,9 +109,7 @@ export const MessagesLeaderboardCmd = guildPluginMessageCommand<MessageTrackerPl
     const lastPage = Math.max(1, Math.ceil(totalCount / PER_PAGE));
 
     const title =
-      PERIOD_TITLES[period] +
-      (args.channel ? ` in #${args.channel.name}` : "") +
-      (role ? ` (@${role.name} only)` : "");
+      PERIOD_TITLES[period] + (args.channel ? ` in #${args.channel.name}` : "") + (role ? ` (@${role.name} only)` : "");
 
     let leaderboardMsg: OmitPartialGroupDMChannel<Message> | null = null;
     let currentPage = 1;
@@ -169,9 +168,7 @@ export const MessagesLeaderboardCmd = guildPluginMessageCommand<MessageTrackerPl
 
       collector.on("collect", async (interaction: MessageComponentInteraction) => {
         if (interaction.user.id !== message.author.id) {
-          interaction
-            .reply({ content: "You are not permitted to use these buttons.", ephemeral: true })
-            .catch(noop);
+          interaction.reply({ content: "You are not permitted to use these buttons.", ephemeral: true }).catch(noop);
           return;
         }
 

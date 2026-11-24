@@ -23,7 +23,10 @@ plugins:
 `;
 
 const outline = buildOutline(text);
-assert.deepEqual(outline.map((n) => n.label), ["prefix", "plugins"]);
+assert.deepEqual(
+  outline.map((n) => n.label),
+  ["prefix", "plugins"],
+);
 const override = findNodeByPath(outline, "plugins/automod/overrides/0")!;
 assert.equal(override.line, 13);
 assert.equal(override.endLine, 17);
@@ -31,7 +34,14 @@ assert.equal(nodeAtLine(outline, 11)!.path, "plugins/automod/config/rules/spam/a
 assert.equal(findNodeByPath(outline, "plugins/utility")!.line, 18);
 assert.equal(findNodeByPath(outline, "plugins/automod/nope")!.path, "plugins/automod");
 
-const config = { plugins: { automod: { config: { rules: { spam: { enabled: false } } }, overrides: [{ role: "1", config: { rules: { spam: { enabled: true } } } }] } } };
+const config = {
+  plugins: {
+    automod: {
+      config: { rules: { spam: { enabled: false } } },
+      overrides: [{ role: "1", config: { rules: { spam: { enabled: true } } } }],
+    },
+  },
+};
 const { result, changes } = mergeSnippet(
   config,
   {

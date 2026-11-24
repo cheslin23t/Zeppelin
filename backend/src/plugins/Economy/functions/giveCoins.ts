@@ -38,16 +38,14 @@ export async function giveCoins(
   if (config.give.hold_duration && (!holdDurationMs || !pendingHoldCountersConfigured(pluginData))) {
     return {
       type: "error",
-      message: "Gift holds are misconfigured on this server (missing the pending-hold counters) — ask an admin to fix this.",
+      message:
+        "Gift holds are misconfigured on this server (missing the pending-hold counters) — ask an admin to fix this.",
     };
   }
 
   // Lock both accounts — a transfer touches two balances, and either side could otherwise race with a
   // concurrent play/trade/give involving the same user.
-  const lock = await pluginData.locks.acquire([
-    economyUserLock({ id: giverId }),
-    economyUserLock({ id: recipientId }),
-  ]);
+  const lock = await pluginData.locks.acquire([economyUserLock({ id: giverId }), economyUserLock({ id: recipientId })]);
   try {
     const { spendable: balance } = await getSpendableBalance(pluginData, config.counter_name, giverId);
     if (balance < amount) {
@@ -82,7 +80,11 @@ export async function giveCoins(
 
       // Reflects the same "spendable, holds excluded" balance the rest of this file reports for the giver, so a
       // recipient's held gift doesn't look like it's already usable in their own history.
-      const { spendable: recipientBalanceAfter } = await getSpendableBalance(pluginData, config.counter_name, recipientId);
+      const { spendable: recipientBalanceAfter } = await getSpendableBalance(
+        pluginData,
+        config.counter_name,
+        recipientId,
+      );
       await logGameHistory(pluginData, {
         userId: recipientId,
         gameName: "give",

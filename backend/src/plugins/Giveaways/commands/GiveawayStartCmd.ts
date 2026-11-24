@@ -57,7 +57,10 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
       : null;
     const channel = args.channel ?? templateChannel;
     if (!channel || !channel.isTextBased()) {
-      void pluginData.state.common.sendErrorMessage(message, "You must specify a channel with `-channel`, or use a template that has one configured.");
+      void pluginData.state.common.sendErrorMessage(
+        message,
+        "You must specify a channel with `-channel`, or use a template that has one configured.",
+      );
       return;
     }
 
@@ -100,13 +103,20 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
       blacklistedRoleIds = roleIds.slice(0, MAX_ROLES_PER_FLAG);
     }
 
-    let messageRequirement: { period: "daily" | "weekly" | "monthly" | "allTime"; min: number; max: number | null } | null = null;
+    let messageRequirement: {
+      period: "daily" | "weekly" | "monthly" | "allTime";
+      min: number;
+      max: number | null;
+    } | null = null;
     if (args.messages) {
       const [periodStr, rangeStr] = args.messages.split(":");
       const period = parseMessagePeriod(periodStr ?? "");
       const range = rangeStr ? parseCountRange(rangeStr) : null;
       if (!period || !range) {
-        void pluginData.state.common.sendErrorMessage(message, "`-messages` must look like `total:1000` or `total:100-1000` (period, then a count or min-max range).");
+        void pluginData.state.common.sendErrorMessage(
+          message,
+          "`-messages` must look like `total:1000` or `total:100-1000` (period, then a count or min-max range).",
+        );
         return;
       }
       messageRequirement = { period, ...range };
@@ -116,7 +126,10 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
     if (args.claim) {
       claimTimeMs = convertDelayStringToMS(args.claim);
       if (!claimTimeMs || claimTimeMs <= 0) {
-        void pluginData.state.common.sendErrorMessage(message, "`-claim` must be a valid duration, e.g. `1d` or `12h`.");
+        void pluginData.state.common.sendErrorMessage(
+          message,
+          "`-claim` must be a valid duration, e.g. `1d` or `12h`.",
+        );
         return;
       }
     } else if (template?.claim_time) {
@@ -127,7 +140,10 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
     if (args.activity) {
       const range = parseCountRange(args.activity);
       if (!range) {
-        void pluginData.state.common.sendErrorMessage(message, "`-activity` must be a count or min-max range, e.g. `100` or `100-1000`.");
+        void pluginData.state.common.sendErrorMessage(
+          message,
+          "`-activity` must be a count or min-max range, e.g. `100` or `100-1000`.",
+        );
         return;
       }
       counterRequirement = { counter_name: config.activity_counter_name, ...range };
@@ -137,7 +153,10 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
     if (args.coins) {
       const range = parseCountRange(args.coins);
       if (!range) {
-        void pluginData.state.common.sendErrorMessage(message, "`-coins` must be a count or min-max range, e.g. `100` or `100-1000`.");
+        void pluginData.state.common.sendErrorMessage(
+          message,
+          "`-coins` must be a count or min-max range, e.g. `100` or `100-1000`.",
+        );
         return;
       }
       coinsRequirement = range;
@@ -151,7 +170,10 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
 
     const description = args.description?.trim() || null;
     if (description && description.length > GIVEAWAY_DESCRIPTION_MAX_LENGTH) {
-      void pluginData.state.common.sendErrorMessage(message, `\`-description\` must be at most ${GIVEAWAY_DESCRIPTION_MAX_LENGTH} characters.`);
+      void pluginData.state.common.sendErrorMessage(
+        message,
+        `\`-description\` must be at most ${GIVEAWAY_DESCRIPTION_MAX_LENGTH} characters.`,
+      );
       return;
     }
 
@@ -175,6 +197,9 @@ export const GiveawayStartCmd = guildPluginMessageCommand<GiveawaysPluginType>()
       claim_time_ms: claimTimeMs,
     });
 
-    void pluginData.state.common.sendSuccessMessage(message, `Giveaway #${giveaway.id} for **${args.prize}** started in <#${channel.id}>!`);
+    void pluginData.state.common.sendSuccessMessage(
+      message,
+      `Giveaway #${giveaway.id} for **${args.prize}** started in <#${channel.id}>!`,
+    );
   },
 });

@@ -144,9 +144,7 @@ export async function runHigherOrLower(
     // close to an edge you are (e.g. "23 (1-25)" all but announces Lower is the safe bet). The multipliers
     // already communicate the odds; spelling out the range on top of that is redundant and too easy to read.
     return (
-      `Round ${roundIndex + 1} — the number is **${currentNumber}**` +
-      progressLine +
-      (extra ? `\n\n${extra}` : "")
+      `Round ${roundIndex + 1} — the number is **${currentNumber}**` + progressLine + (extra ? `\n\n${extra}` : "")
     );
   };
 
@@ -164,7 +162,14 @@ export async function runHigherOrLower(
   const buildEmbeds = (extra?: string): EmbedBuilder[] => [betEmbed, buildEmbed(extra)];
 
   const buildButtons = (disabled = false): ActionRowBuilder<ButtonBuilder> => {
-    const multipliers = roundMultipliers(currentNumber, game.range_max, roundIndex, game.ramp_rounds, game.min_multiplier, game.max_multiplier);
+    const multipliers = roundMultipliers(
+      currentNumber,
+      game.range_max,
+      roundIndex,
+      game.ramp_rounds,
+      game.min_multiplier,
+      game.max_multiplier,
+    );
     const buttons = (Object.keys(CHOICE_LABEL) as Choice[]).map((choice) =>
       new ButtonBuilder()
         .setStyle(ButtonStyle.Primary)
@@ -187,7 +192,8 @@ export async function runHigherOrLower(
     return new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
   };
 
-  const sentMessage = existingMessage ?? (await message.channel.send({ embeds: buildEmbeds(), components: [buildButtons()] }));
+  const sentMessage =
+    existingMessage ?? (await message.channel.send({ embeds: buildEmbeds(), components: [buildButtons()] }));
   if (existingMessage) {
     await sentMessage.edit({ embeds: buildEmbeds(), components: [buildButtons()] });
   }
@@ -313,26 +319,28 @@ export async function runHigherOrLower(
         return;
       }
       const payout = potentialPayout(currentMultiplier);
-      await settle(
-        "win",
-        payout,
-        interaction,
-        (finalPayout, basePayout, coinsBoostMultiplier) => {
-          const baseWinnings = basePayout - bet;
-          const boostText =
-            coinsBoostMultiplier && coinsBoostMultiplier !== 1
-              ? `\nYour **${coinsBoostMultiplier.toFixed(2)}x** coin boost turned ${emojiPrefix}**${formatAmount(baseWinnings)}** winnings into ${emojiPrefix}**${formatAmount(finalPayout - bet)}**.`
-              : "";
-          return (
-            `💰 Cashed out at **${currentMultiplier.toFixed(3)}x** — base payout: ${emojiPrefix}**${formatAmount(basePayout)}** ${config.currency_name}.` +
-            `${boostText}\nTotal payout: ${emojiPrefix}**${formatAmount(finalPayout)}** ${config.currency_name}`
-          );
-        },
-      );
+      await settle("win", payout, interaction, (finalPayout, basePayout, coinsBoostMultiplier) => {
+        const baseWinnings = basePayout - bet;
+        const boostText =
+          coinsBoostMultiplier && coinsBoostMultiplier !== 1
+            ? `\nYour **${coinsBoostMultiplier.toFixed(2)}x** coin boost turned ${emojiPrefix}**${formatAmount(baseWinnings)}** winnings into ${emojiPrefix}**${formatAmount(finalPayout - bet)}**.`
+            : "";
+        return (
+          `💰 Cashed out at **${currentMultiplier.toFixed(3)}x** — base payout: ${emojiPrefix}**${formatAmount(basePayout)}** ${config.currency_name}.` +
+          `${boostText}\nTotal payout: ${emojiPrefix}**${formatAmount(finalPayout)}** ${config.currency_name}`
+        );
+      });
       return;
     }
 
-    const multipliers = roundMultipliers(currentNumber, game.range_max, roundIndex, game.ramp_rounds, game.min_multiplier, game.max_multiplier);
+    const multipliers = roundMultipliers(
+      currentNumber,
+      game.range_max,
+      roundIndex,
+      game.ramp_rounds,
+      game.min_multiplier,
+      game.max_multiplier,
+    );
     const chosenMultiplier = multipliers[action];
     if (chosenMultiplier == null) {
       await interaction.deferUpdate().catch(noop);

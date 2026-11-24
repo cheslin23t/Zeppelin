@@ -14,8 +14,7 @@ export async function playRockPaperScissors(ctx: PvpMatchContext): Promise<PvpMa
   const idBase = `pvpRps:${ctx.channel.id}:${Date.now()}`;
   const choices = new Map<string, Choice>();
 
-  const statusLine = (userId: string): string =>
-    choices.has(userId) ? "✅ Chosen" : "⏳ Waiting...";
+  const statusLine = (userId: string): string => (choices.has(userId) ? "✅ Chosen" : "⏳ Waiting...");
 
   const buildEmbed = (extra?: string): EmbedBuilder =>
     new EmbedBuilder()

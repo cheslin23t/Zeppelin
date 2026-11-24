@@ -20,7 +20,12 @@ export const PvpToggleCmd = guildPluginMessageCommand<EconomyPluginType>()({
     const currentlyDisabled = await isPvpDisabled(pluginData, message.author.id);
     const newValue = currentlyDisabled ? 0 : 1;
 
-    await pluginData.state.counters.setCounterValue(PVP_CHALLENGES_DISABLED_COUNTER_NAME, null, message.author.id, newValue);
+    await pluginData.state.counters.setCounterValue(
+      PVP_CHALLENGES_DISABLED_COUNTER_NAME,
+      null,
+      message.author.id,
+      newValue,
+    );
 
     message.channel.send(
       newValue === 1

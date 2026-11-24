@@ -35,7 +35,12 @@ export const GiveawayBanCmd = guildPluginMessageCommand<GiveawaysPluginType>()({
     }
 
     const expiresAt = args["time"] ? moment.utc().add(args["time"], "ms").format(DBDateFormat) : null;
-    const result = await banUserFromGiveaways(pluginData.guild.id, args.user.id, args.reason?.trim() || null, expiresAt);
+    const result = await banUserFromGiveaways(
+      pluginData.guild.id,
+      args.user.id,
+      args.reason?.trim() || null,
+      expiresAt,
+    );
 
     const config = pluginData.config.get();
     if (config.ban_role_id) {
@@ -48,7 +53,9 @@ export const GiveawayBanCmd = guildPluginMessageCommand<GiveawaysPluginType>()({
 
     const details: string[] = [];
     if (result.removedFromRunning > 0) {
-      details.push(`removed from ${result.removedFromRunning} running giveaway${result.removedFromRunning === 1 ? "" : "s"}`);
+      details.push(
+        `removed from ${result.removedFromRunning} running giveaway${result.removedFromRunning === 1 ? "" : "s"}`,
+      );
     }
     if (result.rerolledFromGiveawayIds.length > 0) {
       details.push(

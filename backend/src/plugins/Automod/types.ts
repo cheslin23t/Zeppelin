@@ -54,8 +54,11 @@ const zRule = z.strictObject({
     .array(z.string().max(100))
     .max(25)
     .default([])
-    .describe("Currently unused — reserved for a future \"named presets\" feature. Safe to leave empty."),
-  affects_bots: z.boolean().default(false).describe("Whether this rule also runs against messages/actions from other bots"),
+    .describe('Currently unused — reserved for a future "named presets" feature. Safe to leave empty.'),
+  affects_bots: z
+    .boolean()
+    .default(false)
+    .describe("Whether this rule also runs against messages/actions from other bots"),
   affects_self: z.boolean().default(false).describe("Whether this rule also runs against Zeppelin's own actions"),
   cooldown: zDelayString
     .nullable()

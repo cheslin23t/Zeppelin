@@ -36,7 +36,14 @@ export const GiveawayListCmd = guildPluginMessageCommand<GiveawaysPluginType>()(
     );
 
     const finishedLines = recentlyFinished.map((g) => {
-      const status = g.status === "cancelled" ? "cancelled" : `won by ${currentWinnerIds(g).map((id) => `<@${id}>`).join(", ") || "nobody"}`;
+      const status =
+        g.status === "cancelled"
+          ? "cancelled"
+          : `won by ${
+              currentWinnerIds(g)
+                .map((id) => `<@${id}>`)
+                .join(", ") || "nobody"
+            }`;
       return `**#${g.id}** ${g.prize} — ${status}`;
     });
 

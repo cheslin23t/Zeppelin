@@ -5,14 +5,22 @@ import { GiveawayEntries } from "../../data/GiveawayEntries.js";
 import { Configs } from "../../data/Configs.js";
 import { GuildGiveawayBans } from "../../data/GuildGiveawayBans.js";
 import { GuildGiveaways } from "../../data/GuildGiveaways.js";
-import { GIVEAWAY_DESCRIPTION_MAX_LENGTH, isValidGiveawayImageUrl } from "../../plugins/Giveaways/functions/buildGiveawayMessage.js";
+import {
+  GIVEAWAY_DESCRIPTION_MAX_LENGTH,
+  isValidGiveawayImageUrl,
+} from "../../plugins/Giveaways/functions/buildGiveawayMessage.js";
 import { createGiveawayRecord } from "../../plugins/Giveaways/functions/createGiveaway.js";
 import { finalizeGiveaway, rerollGiveaway } from "../../plugins/Giveaways/functions/finalizeGiveaway.js";
 import { banUserFromGiveaways, unbanUserFromGiveaways } from "../../plugins/Giveaways/functions/giveawayBans.js";
 import { parseMessagePeriod } from "../../plugins/MessageTracker/functions/messagePeriods.js";
 import { convertDelayStringToMS, DBDateFormat, isValidSnowflake } from "../../utils.js";
 import { loadYamlSafely } from "../../utils/loadYamlSafely.js";
-import { getGuildMemberDisplayInfo, getGuildMemberRoleIds, searchGuildMembersByUsername, setGuildMemberRole } from "./discordData.js";
+import {
+  getGuildMemberDisplayInfo,
+  getGuildMemberRoleIds,
+  searchGuildMembersByUsername,
+  setGuildMemberRole,
+} from "./discordData.js";
 import { requireGuildPermission } from "../permissions.js";
 import { clientError, notFound, ok, serverError, unauthorized } from "../responses.js";
 
@@ -275,14 +283,18 @@ export function initGuildGiveawaysAPI(router: express.Router) {
         const roleId: string | null = config.ban_role_id ?? null;
 
         if (ban) {
-          const rawReason = typeof req.body?.reason === "string" ? req.body.reason.trim().slice(0, MAX_BAN_REASON_LENGTH) : "";
+          const rawReason =
+            typeof req.body?.reason === "string" ? req.body.reason.trim().slice(0, MAX_BAN_REASON_LENGTH) : "";
 
           const rawDuration = typeof req.body?.duration === "string" ? req.body.duration.trim() : "";
           let expiresAt: string | null = null;
           if (rawDuration) {
             const durationMs = convertDelayStringToMS(rawDuration);
             if (!durationMs || durationMs <= 0) {
-              return clientError(res, "Invalid duration — use a delay string like `1d`, `30m`, or `6h`, or leave it blank for a permanent ban");
+              return clientError(
+                res,
+                "Invalid duration — use a delay string like `1d`, `30m`, or `6h`, or leave it blank for a permanent ban",
+              );
             }
             expiresAt = moment.utc().add(durationMs, "ms").format(DBDateFormat);
           }
@@ -479,46 +491,46 @@ export function initGuildGiveawaysAPI(router: express.Router) {
   // client-side) — `search` matches a giveaway whose prize contains it, or whose host is it (as a raw ID) or
   // matches it (as a username/nickname, resolved live via Discord's member search, so it only catches hosts
   // still in the guild — see searchGuildMembersByUsername).
-  giveawaysRouter.get(
-    "/:guildId/giveaways/finished",
-    requireGiveawayManager(),
-    async (req: Request, res: Response) => {
-      try {
-        const search =
-          typeof req.query.search === "string" ? req.query.search.trim().slice(0, MAX_FINISHED_SEARCH_LENGTH) : "";
-        const page = Math.max(1, Math.trunc(Number(req.query.page)) || 1);
-        const pageSize = Math.min(
-          MAX_FINISHED_PAGE_SIZE,
-          Math.max(1, Math.trunc(Number(req.query.pageSize)) || DEFAULT_FINISHED_PAGE_SIZE),
-        );
+  giveawaysRouter.get("/:guildId/giveaways/finished", requireGiveawayManager(), async (req: Request, res: Response) => {
+    try {
+      const search =
+        typeof req.query.search === "string" ? req.query.search.trim().slice(0, MAX_FINISHED_SEARCH_LENGTH) : "";
+      const page = Math.max(1, Math.trunc(Number(req.query.page)) || 1);
+      const pageSize = Math.min(
+        MAX_FINISHED_PAGE_SIZE,
+        Math.max(1, Math.trunc(Number(req.query.pageSize)) || DEFAULT_FINISHED_PAGE_SIZE),
+      );
 
-        const hostIds: string[] = [];
-        if (search) {
-          if (isValidSnowflake(search)) {
-            hostIds.push(search);
-          }
-          const usernameMatches = await searchGuildMembersByUsername(req.params.guildId, search, MAX_FINISHED_USERNAME_MATCHES);
-          for (const id of usernameMatches) {
-            if (!hostIds.includes(id)) hostIds.push(id);
-          }
+      const hostIds: string[] = [];
+      if (search) {
+        if (isValidSnowflake(search)) {
+          hostIds.push(search);
         }
-
-        const repo = GuildGiveaways.getGuildInstance(req.params.guildId);
-        const { items, total } = await repo.searchFinished({ search: search || null, hostIds, page, pageSize });
-
-        const withEntryCounts = await Promise.all(
-          items.map(async (giveaway) => ({
-            ...giveaway,
-            entry_count: await giveawayEntries.count(giveaway.id),
-          })),
+        const usernameMatches = await searchGuildMembersByUsername(
+          req.params.guildId,
+          search,
+          MAX_FINISHED_USERNAME_MATCHES,
         );
-
-        res.json({ items: withEntryCounts, total, page, pageSize });
-      } catch (err) {
-        serverError(res, "Failed to load finished giveaways");
+        for (const id of usernameMatches) {
+          if (!hostIds.includes(id)) hostIds.push(id);
+        }
       }
-    },
-  );
+
+      const repo = GuildGiveaways.getGuildInstance(req.params.guildId);
+      const { items, total } = await repo.searchFinished({ search: search || null, hostIds, page, pageSize });
+
+      const withEntryCounts = await Promise.all(
+        items.map(async (giveaway) => ({
+          ...giveaway,
+          entry_count: await giveawayEntries.count(giveaway.id),
+        })),
+      );
+
+      res.json({ items: withEntryCounts, total, page, pageSize });
+    } catch (err) {
+      serverError(res, "Failed to load finished giveaways");
+    }
+  });
 
   giveawaysRouter.post("/:guildId/giveaways/:id/end", requireGiveawayManager(), async (req: Request, res: Response) => {
     try {

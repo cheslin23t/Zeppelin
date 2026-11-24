@@ -3,7 +3,12 @@ import express, { Request, Response } from "express";
 import { z } from "zod";
 import { Configs } from "../data/Configs.js";
 import { env } from "../env.js";
-import { JbclRoleMap, accountTooNewReason, diffJbclRoles, formatVerifyLog } from "../plugins/JbclRoles/functions/jbclRoles.js";
+import {
+  JbclRoleMap,
+  accountTooNewReason,
+  diffJbclRoles,
+  formatVerifyLog,
+} from "../plugins/JbclRoles/functions/jbclRoles.js";
 import { loadYamlSafely } from "../utils/loadYamlSafely.js";
 import { sendChannelMessage } from "../plugins/Giveaways/functions/discordRest.js";
 import { setGuildMemberRole } from "./guilds/discordData.js";
@@ -44,7 +49,9 @@ export function initJbclRoles(router: express.Router) {
 
     for (const config of await configs.getActive()) {
       const guildId = config.key.match(/^guild-(.+)$/)?.[1];
-      const map: JbclRoleMap | undefined = guildId ? loadYamlSafely(config.config)?.plugins?.jbcl_roles?.config?.roles : undefined;
+      const map: JbclRoleMap | undefined = guildId
+        ? loadYamlSafely(config.config)?.plugins?.jbcl_roles?.config?.roles
+        : undefined;
       if (!guildId || !map) continue;
 
       // Uncached on purpose: discordData's 30s member cache could undo a back-to-back push.

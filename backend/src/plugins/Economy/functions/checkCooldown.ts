@@ -3,9 +3,7 @@ import { humanizeDuration } from "../../../humanizeDuration.js";
 import { convertDelayStringToMS } from "../../../utils.js";
 import { EconomyPluginType } from "../types.js";
 
-export type CooldownCheck =
-  | { onCooldown: true; message: string }
-  | { onCooldown: false; cooldownMs: number | null };
+export type CooldownCheck = { onCooldown: true; message: string } | { onCooldown: false; cooldownMs: number | null };
 
 /**
  * Shared by playGame() and claimReward() — both key their per-user cooldown into the same

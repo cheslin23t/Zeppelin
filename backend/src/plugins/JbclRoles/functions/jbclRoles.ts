@@ -38,7 +38,13 @@ export type JbclRoleMap = Partial<
   >
 >;
 
-const NO_ROLES: JbclRoles = { owner: false, valueteam: false, websitemoderator: false, premium: 0, earlyadopter: false };
+const NO_ROLES: JbclRoles = {
+  owner: false,
+  valueteam: false,
+  websitemoderator: false,
+  premium: 0,
+  earlyadopter: false,
+};
 const BATCH_SIZE = 1000; // API max per call
 
 /**
@@ -131,7 +137,8 @@ export function formatAltLines(alts: JbclAlt[]): string {
 
 /** Mod log line for a verification. */
 export function formatVerifyLog(userId: string, alts: JbclAlt[]): string {
-  const content = `<@${userId}> (\`${userId}\`) verified.` + (alts.length ? `\n**Possible alts:**\n${formatAltLines(alts)}` : "");
+  const content =
+    `<@${userId}> (\`${userId}\`) verified.` + (alts.length ? `\n**Possible alts:**\n${formatAltLines(alts)}` : "");
   return content.slice(0, 2000);
 }
 

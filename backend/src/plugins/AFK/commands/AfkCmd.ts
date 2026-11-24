@@ -17,7 +17,11 @@ export const AfkCmd = afkCmd({
   async run({ message: msg, args, pluginData }) {
     const afkMessage = args.message || "AFK";
 
-    if (getUserMentions(afkMessage).length || getRoleMentions(afkMessage).length || everyoneOrHereRegex.test(afkMessage)) {
+    if (
+      getUserMentions(afkMessage).length ||
+      getRoleMentions(afkMessage).length ||
+      everyoneOrHereRegex.test(afkMessage)
+    ) {
       void pluginData.state.common.sendErrorMessage(msg, "Your AFK message cannot contain mentions");
       return;
     }

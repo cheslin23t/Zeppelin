@@ -1,5 +1,10 @@
 import moment from "moment-timezone";
-import { Giveaway, GiveawayCounterRequirement, GiveawayCountRange, GiveawayMessageRequirement } from "../../../data/entities/Giveaway.js";
+import {
+  Giveaway,
+  GiveawayCounterRequirement,
+  GiveawayCountRange,
+  GiveawayMessageRequirement,
+} from "../../../data/entities/Giveaway.js";
 import { GuildGiveaways } from "../../../data/GuildGiveaways.js";
 import { registerUpcomingGiveaway } from "../../../data/loops/upcomingGiveawaysLoop.js";
 import { DBDateFormat } from "../../../utils.js";

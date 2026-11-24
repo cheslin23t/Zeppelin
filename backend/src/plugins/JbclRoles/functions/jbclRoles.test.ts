@@ -14,7 +14,10 @@ test("Premium gets exactly its tier role, others removed; unmapped and foreign r
 test("Fields the API doesn't send leave their mapped role alone", (t) => {
   const devMap = { developer: "d", websitecontributor: "c" };
   t.deepEqual(diffJbclRoles(none, devMap, ["d", "c"]), { add: [], remove: [] });
-  t.deepEqual(diffJbclRoles({ ...none, developer: true, websitecontributor: false }, devMap, ["c"]), { add: ["d"], remove: ["c"] });
+  t.deepEqual(diffJbclRoles({ ...none, developer: true, websitecontributor: false }, devMap, ["c"]), {
+    add: ["d"],
+    remove: ["c"],
+  });
 });
 
 test("accountTooNewReason blocks accounts younger than min_account_age", (t) => {

@@ -19,10 +19,10 @@ export class GuildScheduleStates extends BaseGuildRepository {
     scheduleName: string,
     data: Omit<Partial<ScheduleState>, "id" | "guild_id" | "schedule_name">,
   ): Promise<void> {
-    await this.scheduleStates.upsert(
-      { ...data, guild_id: this.guildId, schedule_name: scheduleName },
-      ["guild_id", "schedule_name"],
-    );
+    await this.scheduleStates.upsert({ ...data, guild_id: this.guildId, schedule_name: scheduleName }, [
+      "guild_id",
+      "schedule_name",
+    ]);
   }
 
   async delete(scheduleName: string): Promise<void> {

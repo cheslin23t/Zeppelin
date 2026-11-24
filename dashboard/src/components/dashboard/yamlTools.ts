@@ -184,10 +184,13 @@ function mergeInto(target: Record<string, any>, source: Record<string, any>, pat
 
 // Snippets can be a full config fragment ("plugins: automod: ...") or start at the plugin name ("automod: ...").
 export function mergeSnippet(config: unknown, snippet: unknown, pluginNames: string[]) {
-  if (!isObject(snippet)) throw new Error("The snippet must be a YAML mapping (key: value), not a list or a single value.");
+  if (!isObject(snippet))
+    throw new Error("The snippet must be a YAML mapping (key: value), not a list or a single value.");
   const keys = Object.keys(snippet);
   if (keys.every((k) => k === "config" || k === "overrides")) {
-    throw new Error("Can't tell which plugin this belongs to. Wrap it in the plugin name, e.g.\n\nautomod:\n  config:\n    ...");
+    throw new Error(
+      "Can't tell which plugin this belongs to. Wrap it in the plugin name, e.g.\n\nautomod:\n  config:\n    ...",
+    );
   }
   const rooted = !("plugins" in snippet) && keys.every((k) => pluginNames.includes(k)) ? { plugins: snippet } : snippet;
   const result = isObject(config) ? structuredClone(config) : {};

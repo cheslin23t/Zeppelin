@@ -73,7 +73,8 @@ export async function runBlackjackTable(
   const emojiPrefix = config.currency_emoji ? `${config.currency_emoji} ` : "";
   const idBase = `bjTable:${message.id}`;
   const fmt = (amount: number) => `${emojiPrefix}**${formatAmount(amount)}** ${config.currency_name}`;
-  const refund = (seat: Seat) => pluginData.state.counters.changeCounterValue(config.counter_name, null, seat.userId, seat.bet);
+  const refund = (seat: Seat) =>
+    pluginData.state.counters.changeCounterValue(config.counter_name, null, seat.userId, seat.bet);
 
   // Validates and charges one player's buy-in. Returns the charged bet, or an error message to show them.
   const buyIn = async (userId: string, amountInput: string, minBet = game.min_bet): Promise<number | string> => {
@@ -112,8 +113,7 @@ export async function runBlackjackTable(
   let seats: Seat[] = [{ userId: hostId, bet: hostBet }];
   const joining = new Set<string>();
   const minPlayers = mode === "vs" ? 2 : 1;
-  const minJoinBet =
-    mode === "vs" ? Math.max(game.min_bet, Math.ceil(hostBet * VS_MIN_BET_FRACTION)) : game.min_bet;
+  const minJoinBet = mode === "vs" ? Math.max(game.min_bet, Math.ceil(hostBet * VS_MIN_BET_FRACTION)) : game.min_bet;
 
   const modeText =
     mode === "vs"
@@ -127,9 +127,11 @@ export async function runBlackjackTable(
       .setDescription(
         `${modeText}\n\n**Players (${seats.length}/${MAX_PLAYERS})**\n` +
           seats.map((seat) => `<@${seat.userId}>: ${fmt(seat.bet)}`).join("\n") +
-          `\n\n${extra ?? mode === "vs"
-            ? `<@${hostId}> can start once ${minPlayers} players have joined. In ${LOBBY_TIMEOUT / MINUTES} minutes it starts automatically if there are enough players, otherwise it closes and bets are refunded.`
-            : `<@${hostId}> can start any time. Starts automatically in ${LOBBY_TIMEOUT / MINUTES} minutes.`}`,
+          `\n\n${
+            (extra ?? mode === "vs")
+              ? `<@${hostId}> can start once ${minPlayers} players have joined. In ${LOBBY_TIMEOUT / MINUTES} minutes it starts automatically if there are enough players, otherwise it closes and bets are refunded.`
+              : `<@${hostId}> can start any time. Starts automatically in ${LOBBY_TIMEOUT / MINUTES} minutes.`
+          }`,
       );
 
   const buildLobbyComponents = () => [
@@ -202,7 +204,10 @@ export async function runBlackjackTable(
         const ping = await buildInvitePing([...interaction.users.values()]);
         if (!ping) {
           await interaction
-            .reply({ content: "None of them can be invited (bots, already seated, or PvP turned off).", ephemeral: true })
+            .reply({
+              content: "None of them can be invited (bots, already seated, or PvP turned off).",
+              ephemeral: true,
+            })
             .catch(noop);
           return;
         }
@@ -425,9 +430,7 @@ export async function runBlackjackTable(
     const pot = state.hands.reduce((sum, hand) => sum + hand.bet, 0);
     const winners = scores.flatMap((score, i) => (score === best ? [i] : []));
     const winnersBet = winners.reduce((sum, i) => sum + state.hands[i].bet, 0);
-    const shares = state.hands.map((hand, i) =>
-      winners.includes(i) ? Math.floor((pot * hand.bet) / winnersBet) : 0,
-    );
+    const shares = state.hands.map((hand, i) => (winners.includes(i) ? Math.floor((pot * hand.bet) / winnersBet) : 0));
     shares[winners[0]] += pot - shares.reduce((sum, share) => sum + share, 0);
     return shares;
   };

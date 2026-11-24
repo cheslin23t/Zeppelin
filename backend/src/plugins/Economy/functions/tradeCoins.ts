@@ -34,11 +34,7 @@ export async function tradeCoins(
   try {
     if (direction === "buy") {
       // amount = points the user wants to spend
-      const pointsBalance = await pluginData.state.counters.getCounterValue(
-        trade.points_counter_name,
-        null,
-        userId,
-      );
+      const pointsBalance = await pluginData.state.counters.getCounterValue(trade.points_counter_name, null, userId);
       if (pointsBalance < amount) {
         return { type: "error", message: `You don't have that many points (balance: ${pointsBalance})` };
       }
@@ -129,7 +125,13 @@ export async function tradeCoins(
         balanceAfter: cappedNewBalance,
       });
 
-      return { type: "result", direction, spent: actualCoinsSpent, received: actualPointsGained, newBalance: cappedNewBalance };
+      return {
+        type: "result",
+        direction,
+        spent: actualCoinsSpent,
+        received: actualPointsGained,
+        newBalance: cappedNewBalance,
+      };
     }
 
     // Excludes any unrelated active hold (e.g. from a recent gift), so the displayed balance only counts

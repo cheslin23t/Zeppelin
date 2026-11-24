@@ -30,7 +30,18 @@ function currentMonthlyKey(): string {
 // Reads a stored row into display-ready counts, treating any period whose stored bucket key doesn't match the
 // current one as 0 — a user who last messaged yesterday has a stale (non-zero) daily_count sitting in the row
 // until their next message triggers a fresh upsert, but "today" should still correctly read as 0 in the meantime.
-function readCounts(row: Pick<MessageTrackerCount, "all_time_count" | "daily_count" | "daily_date" | "weekly_count" | "weekly_start" | "monthly_count" | "monthly_month">): MessageCounts {
+function readCounts(
+  row: Pick<
+    MessageTrackerCount,
+    | "all_time_count"
+    | "daily_count"
+    | "daily_date"
+    | "weekly_count"
+    | "weekly_start"
+    | "monthly_count"
+    | "monthly_month"
+  >,
+): MessageCounts {
   return {
     daily: row.daily_date === currentDailyKey() ? row.daily_count : 0,
     weekly: row.weekly_start === currentWeeklyKey() ? row.weekly_count : 0,
@@ -165,7 +176,10 @@ export class GuildMessageTrackerCounts extends BaseGuildRepository {
     }
 
     const rows = await query.addOrderBy("mtc.id", "ASC").limit(limit).offset(offset).getMany();
-    return rows.map((row) => ({ userId: row.user_id, count: readCounts(row)[period === "allTime" ? "allTime" : period] }));
+    return rows.map((row) => ({
+      userId: row.user_id,
+      count: readCounts(row)[period === "allTime" ? "allTime" : period],
+    }));
   }
 
   async getTopCount(period: "daily" | "weekly" | "monthly" | "allTime"): Promise<number> {

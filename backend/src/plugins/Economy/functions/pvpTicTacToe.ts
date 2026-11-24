@@ -37,9 +37,7 @@ export async function playTicTacToe(ctx: PvpMatchContext): Promise<PvpMatchOutco
   };
 
   const buildEmbed = (extra?: string): EmbedBuilder => {
-    const rows = [0, 1, 2]
-      .map((r) => [0, 1, 2].map((c) => board[r * 3 + c] ?? "・").join(" "))
-      .join("\n");
+    const rows = [0, 1, 2].map((r) => [0, 1, 2].map((c) => board[r * 3 + c] ?? "・").join(" ")).join("\n");
     const turnLine = extra ?? `It's <@${currentPlayerId}>'s turn (${symbolByUser[currentPlayerId]})`;
 
     return new EmbedBuilder()

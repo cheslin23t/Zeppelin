@@ -32,7 +32,9 @@ async function getPluginConfig(guildId: string, pluginName: string): Promise<any
 
 async function getEconomyManagerRoles(guildId: string): Promise<string[]> {
   const config = await getPluginConfig(guildId, "economy");
-  return Array.isArray(config.manager_roles) ? config.manager_roles.filter((id: unknown) => typeof id === "string") : [];
+  return Array.isArray(config.manager_roles)
+    ? config.manager_roles.filter((id: unknown) => typeof id === "string")
+    : [];
 }
 
 // Same rationale as Giveaways' isGiveawayManager: swallows errors and denies access rather than propagating,
@@ -67,7 +69,10 @@ function requireEconomyManager() {
 // directly. Returns null if the coins counter isn't configured under Counters' own `counters:` key yet (Economy
 // only *names* a counter, per-counter settings like max_value live in Counters' config — see Economy/types.ts's
 // counter_name comment).
-export async function getCoinsCounterSettings(guildId: string, counterName: string): Promise<{ maxValue: number } | null> {
+export async function getCoinsCounterSettings(
+  guildId: string,
+  counterName: string,
+): Promise<{ maxValue: number } | null> {
   const countersConfig = await getPluginConfig(guildId, "counters");
   const counter = countersConfig?.counters?.[counterName];
   if (!counter) return null;
@@ -90,7 +95,10 @@ export function initGuildEconomyAPI(router: express.Router) {
 
   economyRouter.get("/:guildId/economy/leaderboard", requireEconomyManager(), async (req: Request, res: Response) => {
     try {
-      const limit = Math.min(MAX_LEADERBOARD_PAGE_SIZE, Math.max(1, Math.trunc(Number(req.query.limit)) || DEFAULT_LEADERBOARD_PAGE_SIZE));
+      const limit = Math.min(
+        MAX_LEADERBOARD_PAGE_SIZE,
+        Math.max(1, Math.trunc(Number(req.query.limit)) || DEFAULT_LEADERBOARD_PAGE_SIZE),
+      );
       const offset = Math.max(0, Math.trunc(Number(req.query.offset)) || 0);
       const search = typeof req.query.search === "string" ? req.query.search.trim().slice(0, MAX_SEARCH_LENGTH) : "";
 
@@ -175,7 +183,10 @@ export function initGuildEconomyAPI(router: express.Router) {
         userId,
         member,
         balance,
-        activeBoosts: [coinsBoost && { type: "coins", ...coinsBoost }, activityBoost && { type: "activity", ...activityBoost }].filter(Boolean),
+        activeBoosts: [
+          coinsBoost && { type: "coins", ...coinsBoost },
+          activityBoost && { type: "activity", ...activityBoost },
+        ].filter(Boolean),
       });
     } catch (err) {
       serverError(res, "Failed to load user info");
@@ -191,7 +202,10 @@ export function initGuildEconomyAPI(router: express.Router) {
         if (!isValidSnowflake(userId)) return clientError(res, "Invalid user ID");
 
         const page = Math.max(1, Math.trunc(Number(req.query.page)) || 1);
-        const pageSize = Math.min(MAX_HISTORY_PAGE_SIZE, Math.max(1, Math.trunc(Number(req.query.pageSize)) || DEFAULT_HISTORY_PAGE_SIZE));
+        const pageSize = Math.min(
+          MAX_HISTORY_PAGE_SIZE,
+          Math.max(1, Math.trunc(Number(req.query.pageSize)) || DEFAULT_HISTORY_PAGE_SIZE),
+        );
 
         const repo = GuildEconomyGameHistory.getGuildInstance(guildId);
         const filter = { userId };
@@ -201,7 +215,9 @@ export function initGuildEconomyAPI(router: express.Router) {
           repo.getSummary(filter),
         ]);
 
-        const opponentIds = [...new Set(items.map((e) => e.opponent_id).filter((id): id is string => !!id && id !== "bot"))];
+        const opponentIds = [
+          ...new Set(items.map((e) => e.opponent_id).filter((id): id is string => !!id && id !== "bot")),
+        ];
         const opponents = await Promise.all(opponentIds.map((id) => getGuildMemberDisplayInfo(guildId, id)));
         const members = Object.fromEntries(opponentIds.map((id, i) => [id, opponents[i]]).filter(([, m]) => m != null));
 
@@ -232,7 +248,10 @@ export function initGuildEconomyAPI(router: express.Router) {
         const counterName = await getCounterName(guildId);
         const counterSettings = await getCoinsCounterSettings(guildId, counterName);
         if (!counterSettings) {
-          return clientError(res, `The "${counterName}" counter isn't configured under this server's Counters plugin yet.`);
+          return clientError(
+            res,
+            `The "${counterName}" counter isn't configured under this server's Counters plugin yet.`,
+          );
         }
 
         const countersRepo = GuildCounters.getGuildInstance(guildId);
@@ -247,7 +266,10 @@ export function initGuildEconomyAPI(router: express.Router) {
           await countersRepo.changeCounterValue(counter.id, null, userId, change, before, counterSettings.maxValue);
         }
 
-        const newBalance = Math.max(MIN_COUNTER_VALUE, (await countersRepo.getCurrentValue(counter.id, null, userId)) ?? 0);
+        const newBalance = Math.max(
+          MIN_COUNTER_VALUE,
+          (await countersRepo.getCurrentValue(counter.id, null, userId)) ?? 0,
+        );
 
         // Logged into the same table as real games (see NON_GAME_TYPES) so it shows up in this user's history
         // and the dashboard's guild-wide activity feed — an audit trail of who adjusted whose balance and by how
@@ -282,7 +304,10 @@ export function initGuildEconomyAPI(router: express.Router) {
       const since = moment.utc().startOf("day").toDate();
       const repo = GuildEconomyGameHistory.getGuildInstance(req.params.guildId);
       const filter = { since, excludeGameTypes: NON_GAME_TYPES };
-      const [summary, topGames] = await Promise.all([repo.getSummary(filter), repo.getTopGamesSince(filter, MAX_TOP_GAMES)]);
+      const [summary, topGames] = await Promise.all([
+        repo.getSummary(filter),
+        repo.getTopGamesSince(filter, MAX_TOP_GAMES),
+      ]);
       res.json({ ...summary, topGames });
     } catch (err) {
       serverError(res, "Failed to load analytics");
@@ -295,7 +320,10 @@ export function initGuildEconomyAPI(router: express.Router) {
   economyRouter.get("/:guildId/economy/transactions", requireEconomyManager(), async (req: Request, res: Response) => {
     try {
       const page = Math.max(1, Math.trunc(Number(req.query.page)) || 1);
-      const pageSize = Math.min(MAX_HISTORY_PAGE_SIZE, Math.max(1, Math.trunc(Number(req.query.pageSize)) || DEFAULT_HISTORY_PAGE_SIZE));
+      const pageSize = Math.min(
+        MAX_HISTORY_PAGE_SIZE,
+        Math.max(1, Math.trunc(Number(req.query.pageSize)) || DEFAULT_HISTORY_PAGE_SIZE),
+      );
 
       const repo = GuildEconomyGameHistory.getGuildInstance(req.params.guildId);
       const filter = {};
@@ -304,7 +332,11 @@ export function initGuildEconomyAPI(router: express.Router) {
         repo.getCount(filter),
       ]);
 
-      const memberIds = [...new Set(items.flatMap((e) => [e.user_id, ...(e.opponent_id && e.opponent_id !== "bot" ? [e.opponent_id] : [])]))];
+      const memberIds = [
+        ...new Set(
+          items.flatMap((e) => [e.user_id, ...(e.opponent_id && e.opponent_id !== "bot" ? [e.opponent_id] : [])]),
+        ),
+      ];
       const members = await Promise.all(memberIds.map((id) => getGuildMemberDisplayInfo(req.params.guildId, id)));
       const memberById = Object.fromEntries(memberIds.map((id, i) => [id, members[i]]).filter(([, m]) => m != null));
 

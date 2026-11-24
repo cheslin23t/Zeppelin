@@ -26,7 +26,11 @@ export interface CreateGiveawayThreadResult {
   sendError: string | null;
 }
 
-export async function createGiveawayThread(pluginData: GuildPluginData<GiveawaysPluginType>, giveaway: Giveaway, winnerId: string): Promise<CreateGiveawayThreadResult> {
+export async function createGiveawayThread(
+  pluginData: GuildPluginData<GiveawaysPluginType>,
+  giveaway: Giveaway,
+  winnerId: string,
+): Promise<CreateGiveawayThreadResult> {
   // Private threads are a GuildText-only feature — Discord doesn't support them in announcement/forum/etc.
   // channels, so unlike the rest of this codebase's channel handling there's no broader "text-based" check here.
   const channel = pluginData.guild.channels.cache.get(giveaway.channel_id as Snowflake);
@@ -49,13 +53,18 @@ export async function createGiveawayThread(pluginData: GuildPluginData<Giveaways
   // the one who'll actually be handing the prize over. Deduped — the host/holder/winner aren't guaranteed to be
   // distinct people (e.g. a host who also entered and won their own giveaway), and a duplicate ID in
   // allowed_mentions.users makes Discord reject the whole request with a 400 (Invalid Form Body).
-  const memberIds = [...new Set(giveaway.holder_id ? [giveaway.host_id, giveaway.holder_id, winnerId] : [giveaway.host_id, winnerId])];
+  const memberIds = [
+    ...new Set(giveaway.holder_id ? [giveaway.host_id, giveaway.holder_id, winnerId] : [giveaway.host_id, winnerId]),
+  ];
   for (const userId of memberIds) {
     await thread.members.add(userId).catch(() => null);
   }
 
   const pingMentions = memberIds.map((id) => `<@${id}>`).join(" ");
-  const descriptionLines = [`This private thread is for sorting out **${giveaway.prize}**.`, `Host: <@${giveaway.host_id}>`];
+  const descriptionLines = [
+    `This private thread is for sorting out **${giveaway.prize}**.`,
+    `Host: <@${giveaway.host_id}>`,
+  ];
   if (giveaway.holder_id) {
     descriptionLines.push(`Holder: <@${giveaway.holder_id}>`);
   }

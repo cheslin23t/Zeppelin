@@ -94,7 +94,9 @@ export async function finalizeGiveaway(giveawayId: number, opts: { cancelled: bo
 
   if (!opts.cancelled && updated.winner_ids.length > 0) {
     updated = await armClaimDeadlines(updated, winnerIds);
-    const announcement = await sendChannelMessage(updated.channel_id, buildWinnerAnnouncementPayload(updated)).catch(() => null);
+    const announcement = await sendChannelMessage(updated.channel_id, buildWinnerAnnouncementPayload(updated)).catch(
+      () => null,
+    );
     if (announcement?.id) {
       await giveaways.update(giveawayId, {
         winner_announcement_message_ids: [...updated.winner_announcement_message_ids, announcement.id],
@@ -110,7 +112,10 @@ export async function finalizeGiveaway(giveawayId: number, opts: { cancelled: bo
  * Replaces the selected current winners on an already-ended giveaway. Every historical winner remains excluded
  * from the new draw, while replaced winners are marked inactive so the dashboard shows only the replacements.
  */
-export async function rerollGiveaway(giveawayId: number, replaceWinnerIds: string[]): Promise<{ giveaway: Giveaway; newWinnerIds: string[] }> {
+export async function rerollGiveaway(
+  giveawayId: number,
+  replaceWinnerIds: string[],
+): Promise<{ giveaway: Giveaway; newWinnerIds: string[] }> {
   const giveaway = await giveaways.find(giveawayId);
   if (!giveaway) {
     throw new Error(`Giveaway ${giveawayId} not found`);

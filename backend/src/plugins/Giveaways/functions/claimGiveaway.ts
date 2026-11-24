@@ -1,7 +1,10 @@
 import moment from "moment-timezone";
 import { Giveaway } from "../../../data/entities/Giveaway.js";
 import { Giveaways } from "../../../data/Giveaways.js";
-import { clearUpcomingClaimDeadline, registerUpcomingClaimDeadline } from "../../../data/loops/upcomingClaimDeadlinesLoop.js";
+import {
+  clearUpcomingClaimDeadline,
+  registerUpcomingClaimDeadline,
+} from "../../../data/loops/upcomingClaimDeadlinesLoop.js";
 import { DBDateFormat } from "../../../utils.js";
 import { buildWinnerAnnouncementButtons, currentWinnerIds } from "./buildGiveawayMessage.js";
 import { deleteWinnerThreads } from "./cleanupGiveawayThreads.js";
@@ -78,7 +81,8 @@ export async function confirmWinnerClaimed(giveawayId: number, winnerId: string)
   // Just an announcement at this point — each winner's thread is closed out individually by a manager reviewing
   // and deleting it (see giveawayButtonInteraction.ts's "giveawayThreadDelete"), not automatically here.
   const stillHeldWinnerIds = currentWinnerIds(updated);
-  const allClaimed = stillHeldWinnerIds.length > 0 && stillHeldWinnerIds.every((id) => updated.claimed_winner_ids.includes(id));
+  const allClaimed =
+    stillHeldWinnerIds.length > 0 && stillHeldWinnerIds.every((id) => updated.claimed_winner_ids.includes(id));
   if (allClaimed) {
     // A reply on the original giveaway embed rather than a standalone message — the prize is already right there
     // in that embed's title, so repeating it here would be redundant.
@@ -92,7 +96,9 @@ export async function confirmWinnerClaimed(giveawayId: number, winnerId: string)
     // thread for a giveaway that's already done. Cleared regardless of individual delete success/failure so a
     // stale ID (already-deleted message, etc.) can't get stuck here forever.
     await Promise.all(
-      updated.winner_announcement_message_ids.map((messageId) => deleteChannelMessage(updated.channel_id, messageId).catch(() => null)),
+      updated.winner_announcement_message_ids.map((messageId) =>
+        deleteChannelMessage(updated.channel_id, messageId).catch(() => null),
+      ),
     );
     await giveaways.update(giveawayId, { winner_announcement_message_ids: [] });
   }

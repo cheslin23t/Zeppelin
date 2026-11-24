@@ -31,7 +31,10 @@ export const GiveawayRerollCmd = guildPluginMessageCommand<GiveawaysPluginType>(
       return;
     }
     if (giveaway.status !== "ended") {
-      void pluginData.state.common.sendErrorMessage(message, `Giveaway #${giveaway.id} hasn't ended yet, so it can't be rerolled.`);
+      void pluginData.state.common.sendErrorMessage(
+        message,
+        `Giveaway #${giveaway.id} hasn't ended yet, so it can't be rerolled.`,
+      );
       return;
     }
 

@@ -50,9 +50,7 @@ export async function checkStickyMessage(
 
   if (row.message_id) {
     await channel.messages.delete(row.message_id as Snowflake).catch((err) => {
-      logger.warn(
-        `[STICKY MESSAGES] Failed to delete old sticky message in #${channel.name} (${channel.id}): ${err}`,
-      );
+      logger.warn(`[STICKY MESSAGES] Failed to delete old sticky message in #${channel.name} (${channel.id}): ${err}`);
     });
   }
 

@@ -110,7 +110,8 @@ export async function playTicTacToeVsBot(ctx: PvpBotMatchContext): Promise<PvpBo
   const buildDescription = (extra?: string): string => {
     const rows = [0, 1, 2].map((r) => [0, 1, 2].map((c) => board[r * 3 + c] ?? "・").join(" ")).join("\n");
     const turnLine =
-      extra ?? `It's ${isHumanTurn ? `<@${ctx.playerId}>'s` : "🤖 Bot's"} turn (${isHumanTurn ? humanSymbol : botSymbol})`;
+      extra ??
+      `It's ${isHumanTurn ? `<@${ctx.playerId}>'s` : "🤖 Bot's"} turn (${isHumanTurn ? humanSymbol : botSymbol})`;
     return `<@${ctx.playerId}> (${humanSymbol}) vs 🤖 Bot (${botSymbol})\n\n${rows}\n\n${turnLine}`;
   };
 

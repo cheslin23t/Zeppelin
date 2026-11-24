@@ -8,7 +8,11 @@ import { GiveawaysPluginType } from "../types.js";
  * tracked per-user — this is a read-only lookup (see GuildCounters.findCounterByName), so entering a giveaway
  * never creates a counter as a side effect.
  */
-export async function getNamedCounterValueForUser(guildId: string, counterName: string, userId: string): Promise<number> {
+export async function getNamedCounterValueForUser(
+  guildId: string,
+  counterName: string,
+  userId: string,
+): Promise<number> {
   const repo = GuildCounters.getGuildInstance(guildId);
   const counter = await repo.findCounterByName(counterName);
   if (!counter) {
@@ -26,7 +30,10 @@ export async function getNamedCounterValueForUser(guildId: string, counterName: 
  * Economy isn't installed here, so the caller can tell "no balance" apart from "Economy isn't set up" if it
  * cares to.
  */
-export async function getCoinsValueForUser(pluginData: GuildPluginData<GiveawaysPluginType>, userId: string): Promise<number | null> {
+export async function getCoinsValueForUser(
+  pluginData: GuildPluginData<GiveawaysPluginType>,
+  userId: string,
+): Promise<number | null> {
   try {
     const { EconomyPlugin } = await import("../../Economy/EconomyPlugin.js");
     if (!pluginData.hasPlugin(EconomyPlugin)) {

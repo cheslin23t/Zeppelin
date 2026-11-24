@@ -8,7 +8,16 @@ export type GameHistoryOutcome = "win" | "loss" | "push";
 // dashboard (see api/guilds/economy.ts's POST /economy/user/:userId/balance). All four are logged into the same
 // table so they show up alongside actual plays in a user's history and the dashboard's activity feed, but
 // excluded from game-specific analytics (games played/wagered/won/lost) — see NON_GAME_TYPES below.
-export type GameHistoryGameType = "wager" | "reward" | "blackjack" | "pvp" | "hol" | "give" | "trade" | "tradeback" | "admin_adjust";
+export type GameHistoryGameType =
+  | "wager"
+  | "reward"
+  | "blackjack"
+  | "pvp"
+  | "hol"
+  | "give"
+  | "trade"
+  | "tradeback"
+  | "admin_adjust";
 
 // The non-game types (see the GameHistoryGameType comment above) — shared by the guild-wide analytics query
 // (excludes these) and previously the dashboard's own transaction feed, which now shows everything instead.

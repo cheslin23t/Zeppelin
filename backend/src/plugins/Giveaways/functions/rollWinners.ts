@@ -7,8 +7,14 @@ const giveawayEntries = new GiveawayEntries();
  * so earlier picks don't skew the odds for later ones. Returns fewer than `winnerCount` user IDs if there
  * aren't enough eligible entrants.
  */
-export async function rollWinners(giveawayId: number, winnerCount: number, excludeUserIds: string[] = []): Promise<string[]> {
-  const entries = (await giveawayEntries.getForGiveaway(giveawayId)).filter((entry) => !excludeUserIds.includes(entry.user_id));
+export async function rollWinners(
+  giveawayId: number,
+  winnerCount: number,
+  excludeUserIds: string[] = [],
+): Promise<string[]> {
+  const entries = (await giveawayEntries.getForGiveaway(giveawayId)).filter(
+    (entry) => !excludeUserIds.includes(entry.user_id),
+  );
 
   const remaining = entries.slice();
   const winners: string[] = [];

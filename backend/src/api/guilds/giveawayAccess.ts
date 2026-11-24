@@ -9,7 +9,9 @@ async function getGiveawayManagerRoles(guildId: string): Promise<string[]> {
   if (!activeConfig) return [];
 
   const managerRoles = loadYamlSafely(activeConfig.config)?.plugins?.giveaways?.config?.manager_roles;
-  return Array.isArray(managerRoles) ? managerRoles.filter((roleId): roleId is string => typeof roleId === "string") : [];
+  return Array.isArray(managerRoles)
+    ? managerRoles.filter((roleId): roleId is string => typeof roleId === "string")
+    : [];
 }
 
 /** Whether a current guild member has a role allowed to manage that guild's giveaways. */
@@ -33,6 +35,8 @@ export async function getGiveawayManagerGuildIds(userId: string): Promise<string
     .map((config) => config.key.match(/^guild-(.+)$/)?.[1])
     .filter((guildId): guildId is string => guildId != null);
 
-  const access = await Promise.all(guildIds.map(async (guildId) => (await isGiveawayManager(guildId, userId) ? guildId : null)));
+  const access = await Promise.all(
+    guildIds.map(async (guildId) => ((await isGiveawayManager(guildId, userId)) ? guildId : null)),
+  );
   return access.filter((guildId): guildId is string => guildId != null);
 }
